@@ -11,12 +11,12 @@ import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import Login, { fakeAuth } from "./Login";
+import Login from "../login/Login";
 import { Link, Route, Switch } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
     grow: {
-        flexGrow: 1,
+        flexGrow: 1
     },
     menuButton: {
         marginRight: theme.spacing(2),

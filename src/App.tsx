@@ -2,40 +2,22 @@ import React, { Component } from "react";
 import { Redirect, Link, Route, Switch, RouteComponentProps, RedirectProps, RouteProps } from 'react-router-dom';
 import './App.css';
 import Home from "./components/Home";
-import Login, { fakeAuth } from "./components/Login";
-import CustomAppBar from './components/CustomAppBar';
+import Login from "./components/login/Login";
+import CustomAppBar from './components/ui/CustomAppBar';
+import {useAuth} from "./providers/AuthProvider";
+import AuthenticatedApp from "./components/authentication/AuthenticatedApp";
+import UnathenticatedApp from "./components/authentication/UnauthenticatedApp";
 
-class App extends Component {
-  render() {
-    return (
-      <div>
-        <CustomAppBar></CustomAppBar>
-        < div className="root" >
-          <Switch>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route exact path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </div>
-      </div>
-    );
-  }
-}
+function App() {
+  
+  const { data } = useAuth();
 
-//Private router function
-const PrivateRoute = ({ component, ...rest }: RouteProps) => {
-  return (
-    <Route
-      {...rest}
-      render={props => fakeAuth.isAuthenticated === true ?
-        (<Component {...props} />) :
-        (<Redirect to={{ pathname: "/login", state: { from: props.location } }} />)}
-    />
+  return (   
+    <>
+       { data.user !== null ? <AuthenticatedApp/> : <UnathenticatedApp/> }
+    </>
   );
-};
+}
 
 //Admin component
 const Admin = ({ match }: RouteComponentProps<string>) => {
