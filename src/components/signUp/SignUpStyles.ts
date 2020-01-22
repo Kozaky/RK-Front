@@ -5,7 +5,7 @@ export default makeStyles((theme: Theme) =>
     form: {
       padding: '12px 0px 12px 0px'
     },
-    input: {
+    form_control: {
       width: '100%'
     },
     backdrop: {

@@ -1,5 +1,5 @@
 import React from "react";
-import CustomAppBar from "../../components/ui/CustomAppBar";
+import CustomAppBar from "../ui/customAppBar/CustomAppBar";
 import Home from "../../components/Home";
 
 const AuthenticatedApp = () => {
