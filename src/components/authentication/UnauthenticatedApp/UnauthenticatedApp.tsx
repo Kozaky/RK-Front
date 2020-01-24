@@ -13,11 +13,6 @@ const UnathenticatedApp = () => {
   // State
   const [showSignUp, setShowSignUp] = useState(false);
 
-  // Consts
-  const form = showSignUp ? 
-    <SignUp setShowSignUp={ setShowSignUp }/> : 
-    <LogIn setShowSignUp={ setShowSignUp }/>;
-
   return (
     <>
       <CustomAppBar />
@@ -26,7 +21,8 @@ const UnathenticatedApp = () => {
         <Grid item xs={ 3 }>
         </Grid>
         <Grid item xs={ 6 }>
-          { form }
+          <SignUp setShowSignUp={ setShowSignUp } hidden={ !showSignUp }/>
+          <LogIn setShowSignUp={ setShowSignUp } hidden={ showSignUp }/>
         </Grid>
         <Grid item xs={ 3 }>
         </Grid>

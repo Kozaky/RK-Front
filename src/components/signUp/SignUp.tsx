@@ -14,6 +14,7 @@ import StringFormInput from '../ui/stringFormInput/StringFormInput';
 
 type SignUpProps = {
   setShowSignUp: React.Dispatch<React.SetStateAction<boolean>>;
+  hidden: boolean;
 };
 
 const SignUp = (props: SignUpProps) => {
@@ -120,7 +121,7 @@ const SignUp = (props: SignUpProps) => {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Card className={classes.card} raised>
+        <Card className={classes.card} hidden={ props.hidden } raised>
           <CardContent>
             <Typography variant="h3" gutterBottom>
               SIGN UP

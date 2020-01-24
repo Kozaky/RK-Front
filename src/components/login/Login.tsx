@@ -14,6 +14,7 @@ import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui
 
 type LogInProps = {
   setShowSignUp: React.Dispatch<React.SetStateAction<boolean>>;
+  hidden: boolean;
 };
 
 const LogIn = (props: LogInProps) => {
@@ -48,7 +49,7 @@ const LogIn = (props: LogInProps) => {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Card className={classes.card} raised>
+        <Card className={classes.card} hidden={ props.hidden } raised>
           <CardContent>
             <Typography variant="h3" gutterBottom>
               LOG IN
