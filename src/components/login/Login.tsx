@@ -6,11 +6,13 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import useStyles from './LoginStyles';
 import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
+import LockIcon from '@material-ui/icons/Lock';
 
 type LogInProps = {
   setShowSignUp: React.Dispatch<React.SetStateAction<boolean>>;
@@ -50,10 +52,12 @@ const LogIn = (props: LogInProps) => {
     <>
       <ThemeProvider theme={theme}>
         <Card className={classes.card} hidden={ props.hidden } raised>
+          <CardHeader 
+            avatar={ <LockIcon /> }
+            titleTypographyProps={{ variant:'h4' }}
+            title="LOG IN"
+          />
           <CardContent>
-            <Typography variant="h3" gutterBottom>
-              LOG IN
-            </Typography>
             <form className={ classes.form }>
               <Grid container spacing={3}>
                 <Grid item xs={ 12 }>
@@ -80,7 +84,7 @@ const LogIn = (props: LogInProps) => {
             </Backdrop>
           </CardContent>
           <CardActions>
-            <Button size="small" color="secondary" variant="outlined" 
+            <Button size="medium" color="secondary" variant="outlined" 
               onClick={ handleSubmit }>
                 Log In
             </Button>

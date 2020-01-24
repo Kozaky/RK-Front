@@ -5,12 +5,15 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import useStyles from './SignUpStyles';
 import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
 import StringFormInput from '../ui/stringFormInput/StringFormInput';
+import CreateIcon from '@material-ui/icons/Create';
+import IconButton from '@material-ui/core/IconButton';
 
 type SignUpProps = {
   setShowSignUp: React.Dispatch<React.SetStateAction<boolean>>;
@@ -122,10 +125,12 @@ const SignUp = (props: SignUpProps) => {
     <>
       <ThemeProvider theme={theme}>
         <Card className={classes.card} hidden={ props.hidden } raised>
+          <CardHeader 
+            avatar={ <CreateIcon /> }
+            titleTypographyProps={{ variant:'h4' }}
+            title="SIGN UP"
+          />
           <CardContent>
-            <Typography variant="h3" gutterBottom>
-              SIGN UP
-            </Typography>
             <form className={ classes.form }>
               <Grid container>
                 <Grid item xs={ 12 }>
@@ -181,7 +186,7 @@ const SignUp = (props: SignUpProps) => {
             </Backdrop>
           </CardContent>
           <CardActions>
-            <Button size="small" color="secondary" 
+            <Button size="medium" color="secondary" 
               variant="outlined" onClick={ handleSubmit }
             >
               Sign Up
