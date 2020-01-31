@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Redirect, Link, Route, Switch, RouteComponentProps, RedirectProps, RouteProps } from 'react-router-dom';
 import './App.css';
-import {useAuth} from "./providers/AuthProvider";
+import {useAuth} from "./providers/authProvider/AuthProvider";
 import AuthenticatedApp from "./components/authentication/AuthenticatedApp";
 import UnathenticatedApp from "./components/authentication/UnauthenticatedApp/UnauthenticatedApp";
 

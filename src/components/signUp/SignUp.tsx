@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/authProvider/AuthProvider';
 import Grid from '@material-ui/core/Grid';
-import Backdrop from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -13,7 +11,6 @@ import useStyles from './SignUpStyles';
 import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
 import StringFormInput from '../ui/stringFormInput/StringFormInput';
 import CreateIcon from '@material-ui/icons/Create';
-import IconButton from '@material-ui/core/IconButton';
 
 type SignUpProps = {
   setShowSignUp: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,7 +23,7 @@ const SignUp = (props: SignUpProps) => {
   let theme = createMuiTheme();
   theme = responsiveFontSizes(theme);
   const classes = useStyles();
-  const { loginHandler } = useAuth();
+  const { signupHandler } = useAuth();
 
   // State
   const [fullName, setFullName] = useState('');
@@ -41,85 +38,111 @@ const SignUp = (props: SignUpProps) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmPasswordErrorMsg, setConfirmPasswordErrorMsg] = useState('');
 
-  const [showSpinner, setShowSpinner] = useState(false);
-
   // Functions
+
+  const checkFullName = async (): Promise<string> => {
+    let errorMsg = '';
+
+    if (fullName.length === 0) {
+      errorMsg = 'Required';
+    } else if (fullName.length < 8) {
+      errorMsg = 'The full name must be 8 characters long';
+    }
+
+    return errorMsg;    
+  }
 
   // Check fullName whenever it changes
   React.useEffect(() => {
-    const checkFullName = async () => {
-      let errorMsg = '';
-
-      if (fullName.length === 0) {
-        errorMsg = 'Required';
-      } else if (fullName.length < 8) {
-        errorMsg = 'The full name must be 8 characters long';
-      }
-
-      return errorMsg;    
-    }
 
     checkFullName().then(errorMsg => setFullNameErrorMsg(errorMsg));
+
   }, [fullName]);
+
+  const checkEmail = async (): Promise<string> => {
+    let reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+    let errorMsg = '';
+
+    if (email.length === 0) {
+      errorMsg = 'Required';
+    } else if (!reg.test(email)) {
+      errorMsg = 'Not a valid email';
+    }
+
+    return errorMsg;
+  }
 
   // Check email whenever it changes
   React.useEffect(() => {
-    const checkEmail = async () => {
-      let reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-      let errorMsg = '';
-
-      if (email.length === 0) {
-        errorMsg = 'Required';
-      } else if (!reg.test(email)) {
-        errorMsg = 'Not a valid email';
-      }
-
-      return errorMsg;
-    }
 
     checkEmail().then(errorMsg => setEmailErrorMsg(errorMsg));
+
   }, [email]);
+
+  const checkPassword = async (): Promise<string> => {
+    let errorMsg = '';
+
+    if (password.length === 0) {
+      errorMsg = 'Required';
+    } else if (password.length < 9) {
+      errorMsg = 'Minimum 9 characters';
+    }
+
+    return errorMsg;
+  }
 
   // Check password whenever it changes
   React.useEffect(() => {
-    const checkPassword = async () => {
-      let errorMsg = '';
-
-      if (password.length === 0) {
-        errorMsg = 'Required';
-      } else if (password.length < 9) {
-        errorMsg = 'Minimum 9 characters';
-      }
-
-      return errorMsg;
-    }
 
     checkPassword().then(errorMsg => setPasswordErrorMsg(errorMsg));
+
   }, [password]);
+
+  const checkConfirmPassword = async (): Promise<string> => {
+    let errorMsg = '';
+
+    if (confirmPassword.length === 0) {
+      errorMsg = 'Required';
+    } else if (confirmPassword !== password) {
+      errorMsg = 'Confirm Password does not match';
+    }
+
+    return errorMsg;
+  }
 
   // Check confirmPassword whenever it changes
   React.useEffect(() => {
-    const checkConfirmPassword = async () => {
-      let errorMsg = '';
-
-      if (confirmPassword.length === 0) {
-        errorMsg = 'Required';
-      } else if (confirmPassword !== password) {
-        errorMsg = 'Confirm Password does not match';
-      }
-
-      return errorMsg;
-    }
 
     checkConfirmPassword().then(errorMsg => setConfirmPasswordErrorMsg(errorMsg));
+
   }, [confirmPassword]);
 
   const handleSubmit = (event: React.FormEvent) => {
+
+    const checkForm = async (): Promise<boolean> => {
+  
+      const results = await Promise.all([
+        checkEmail(),
+        checkFullName(),
+        checkConfirmPassword(),
+        checkPassword()
+      ]);
+  
+      return results.every((value:string) => value.length === 0);
+    }
+
     event.preventDefault();
-    setShowSpinner(true);
-    loginHandler(email, password);
-    setTimeout(() => setShowSpinner(false), 3000);
+
+    checkForm().then((result:boolean) => {
+
+      if (result) {
+        signupHandler(fullName, email, password, confirmPassword);
+      } 
+
+    });
+
   }
+
 
   return (
     <>
@@ -130,68 +153,65 @@ const SignUp = (props: SignUpProps) => {
             titleTypographyProps={{ variant:'h4' }}
             title="SIGN UP"
           />
-          <CardContent>
-            <form className={ classes.form }>
-              <Grid container>
-                <Grid item xs={ 12 }>
-                  <StringFormInput 
-                    field="Full Name"
-                    value={ fullName }
-                    setValue={ setFullName }
-                    errorMsg={ fullNameErrorMsg }
-                    classes={ classes.form_control }
-                  />
+          <form className={ classes.form }>
+            <CardContent>
+                <Grid container>
+                  <Grid item xs={ 12 }>
+                    <StringFormInput 
+                      field="Full Name"
+                      value={ fullName }
+                      setValue={ setFullName }
+                      errorMsg={ fullNameErrorMsg }
+                      classes={ classes.form_control }
+                    />
+                  </Grid>
+                  <Grid item xs={ 12 }>
+                    <StringFormInput 
+                      field="Email"
+                      value={ email }
+                      setValue={ setEmail }
+                      errorMsg={ emailErrorMsg }
+                      classes={ classes.form_control }
+                    />
+                  </Grid>
+                  <Grid item xs={ 12 }>
+                    <StringFormInput 
+                      field="Password"
+                      value={ password }
+                      setValue={ setPassword }
+                      errorMsg={ passwordErrorMsg }
+                      type="password"
+                      classes={ classes.form_control }
+                    />
+                  </Grid>
+                  <Grid item xs={ 12 }>
+                    <StringFormInput 
+                      field="Confirm Password"
+                      value={ confirmPassword }
+                      setValue={ setConfirmPassword }
+                      errorMsg={ confirmPasswordErrorMsg }
+                      type="password"
+                      classes={ classes.form_control }
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={ 12 }>
-                  <StringFormInput 
-                    field="Email"
-                    value={ email }
-                    setValue={ setEmail }
-                    errorMsg={ emailErrorMsg }
-                    classes={ classes.form_control }
-                  />
-                </Grid>
-                <Grid item xs={ 12 }>
-                  <StringFormInput 
-                    field="Password"
-                    value={ password }
-                    setValue={ setPassword }
-                    errorMsg={ passwordErrorMsg }
-                    type="password"
-                    classes={ classes.form_control }
-                  />
-                </Grid>
-                <Grid item xs={ 12 }>
-                  <StringFormInput 
-                    field="Confirm Password"
-                    value={ confirmPassword }
-                    setValue={ setConfirmPassword }
-                    errorMsg={ confirmPasswordErrorMsg }
-                    type="password"
-                    classes={ classes.form_control }
-                  />
-                </Grid>
-              </Grid>
-            </form>
-            <Typography variant="caption" display="block" gutterBottom>
-              Already have an account? 
-              <Button size="small" color="secondary"
-                onClick={ () => props.setShowSignUp(false) }
+              <Typography variant="caption" display="block" gutterBottom>
+                Already have an account? 
+                <Button size="small" color="secondary"
+                  onClick={ () => props.setShowSignUp(false) }
+                >
+                  Log In
+                </Button>
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="medium" color="secondary" type="submit"
+                variant="outlined" onClick={ handleSubmit }
               >
-                Log In
+                Sign Up
               </Button>
-            </Typography>
-            <Backdrop className={classes.backdrop} open={ showSpinner }>
-              <CircularProgress color="secondary" size="10rem" />
-            </Backdrop>
-          </CardContent>
-          <CardActions>
-            <Button size="medium" color="secondary" 
-              variant="outlined" onClick={ handleSubmit }
-            >
-              Sign Up
-            </Button>
-          </CardActions>
+            </CardActions>
+          </form>
         </Card>
       </ThemeProvider>
     </>

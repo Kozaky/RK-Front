@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { AuthProvider } from './AuthProvider';
+import { AuthProvider } from './authProvider/AuthProvider';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
 import { BrowserRouter } from 'react-router-dom';

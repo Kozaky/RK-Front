@@ -22,8 +22,8 @@ const StringFormInput = (props: StringFormInputProps) => {
     <FormControl className={ props.classes } 
       error={ props.errorMsg.length !==0 }
     >
-      <InputLabel htmlFor="fullNameInput">{ props.field }</InputLabel>
-      <Input id="fullNameInput" value={ props.value } type={ props.type }
+      <InputLabel htmlFor={ props.field }>{ props.field }</InputLabel>
+      <Input id={ props.field } value={ props.value } type={ props.type }
         onChange={ (e) => props.setValue(e.currentTarget.value) } aria-describedby="fullNameInput-error-text"/>
       <FormHelperText id="fullNameInput-error-text" 
         hidden={ props.errorMsg.length === 0 }

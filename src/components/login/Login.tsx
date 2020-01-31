@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '../../providers/authProvider/AuthProvider';
 import Grid from '@material-ui/core/Grid';
-import Backdrop from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -30,7 +28,6 @@ const LogIn = (props: LogInProps) => {
   // State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showSpinner, setShowSpinner] = useState(false);
 
   // Functions
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,9 +40,7 @@ const LogIn = (props: LogInProps) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setShowSpinner(true);
     loginHandler(email, password);
-    setTimeout(() => setShowSpinner(false), 3000);
   }
 
   return (
@@ -57,38 +52,36 @@ const LogIn = (props: LogInProps) => {
             titleTypographyProps={{ variant:'h4' }}
             title="LOG IN"
           />
-          <CardContent>
-            <form className={ classes.form }>
-              <Grid container spacing={3}>
-                <Grid item xs={ 12 }>
-                  <TextField id="emailInput" label="Email" variant="filled"
-                    className={ classes.input }
-                    value={ email } onChange={ handleEmailChange }/>
+          <form className={ classes.form }>
+            <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={ 12 }>
+                    <TextField id="emailInput" label="Email" variant="filled"
+                      className={ classes.input }
+                      value={ email } onChange={ handleEmailChange }/>
+                  </Grid>
+                  <Grid item xs={ 12 }>
+                    <TextField id="passwordInput" label="Password" variant="filled" 
+                      type="password" className={ classes.input }
+                      value={ password } onChange={ handlePasswordChange }/>
+                  </Grid>
                 </Grid>
-                <Grid item xs={ 12 }>
-                  <TextField id="passwordInput" label="Password" variant="filled" 
-                    type="password" className={ classes.input }
-                    value={ password } onChange={ handlePasswordChange }/>
-                </Grid>
-              </Grid>
-            </form>
-            <Typography variant="caption" display="block" gutterBottom>
-              Still do not have an account? 
-              <Button size="small" color="secondary"
-                onClick={ () => props.setShowSignUp(true) }>
-                  Sign Up
+              <Typography variant="caption" display="block" gutterBottom>
+                Still do not have an account? 
+                <Button size="small" color="secondary"
+                  onClick={ () => props.setShowSignUp(true) }>
+                    Sign Up
+                </Button>
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="medium" color="secondary" variant="outlined" 
+                type="submit" onClick={ handleSubmit } 
+              >
+                  Log In
               </Button>
-            </Typography>
-            <Backdrop className={classes.backdrop} open={ showSpinner }>
-              <CircularProgress color="secondary" size="10rem" />
-            </Backdrop>
-          </CardContent>
-          <CardActions>
-            <Button size="medium" color="secondary" variant="outlined" 
-              onClick={ handleSubmit }>
-                Log In
-            </Button>
-          </CardActions>
+            </CardActions>
+          </form>
         </Card>
       </ThemeProvider>
     </>
