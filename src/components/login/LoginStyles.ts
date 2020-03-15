@@ -15,6 +15,9 @@ export default makeStyles((theme: Theme) =>
     card: {
       maxWidth: '500px',
       margin: 'auto'
+    },
+    text: {
+      color: '#f44336 !important'
     }
   })
 );

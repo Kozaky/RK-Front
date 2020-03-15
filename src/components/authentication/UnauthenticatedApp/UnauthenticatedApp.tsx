@@ -8,9 +8,11 @@ import CustomAppBar from '../../ui/customAppBar/CustomAppBar';
 const UnathenticatedApp = () => {
 
   // Services
+
   const classes = useStyles();
 
   // State
+  
   const [showSignUp, setShowSignUp] = useState(false);
 
   return (
@@ -18,13 +20,13 @@ const UnathenticatedApp = () => {
       <CustomAppBar />
       <Grid container direction="row" justify="center" 
       alignItems="center" className={ classes.root }>
-        <Grid item xs={ 3 }>
+        <Grid item xs={ 2 }>
         </Grid>
-        <Grid item xs={ 6 }>
+        <Grid item xs={ 8 }>
           <SignUp setShowSignUp={ setShowSignUp } hidden={ !showSignUp }/>
           <LogIn setShowSignUp={ setShowSignUp } hidden={ showSignUp }/>
         </Grid>
-        <Grid item xs={ 3 }>
+        <Grid item xs={ 2 }>
         </Grid>
       </Grid>
     </>

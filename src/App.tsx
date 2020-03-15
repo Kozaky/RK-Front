@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Redirect, Link, Route, Switch, RouteComponentProps, RedirectProps, RouteProps } from 'react-router-dom';
 import './App.css';
 import {useAuth} from "./providers/authProvider/AuthProvider";
 import AuthenticatedApp from "./components/authentication/AuthenticatedApp";
@@ -7,23 +6,13 @@ import UnathenticatedApp from "./components/authentication/UnauthenticatedApp/Un
 
 function App() {
   
-  const { data } = useAuth();
+  const { currentUser } = useAuth()!;
 
   return (   
     <>
-       { data.user !== null ? <AuthenticatedApp/> : <UnathenticatedApp/> }
+      { currentUser !== null ? <AuthenticatedApp/> : <UnathenticatedApp/> }
     </>
   );
 }
-
-//Admin component
-const Admin = ({ match }: RouteComponentProps<string>) => {
-  return (
-    <div>
-      {" "}
-      <h2> Welcome admin </h2>
-    </div>
-  );
-};
 
 export default App;
