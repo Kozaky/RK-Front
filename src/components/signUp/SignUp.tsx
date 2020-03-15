@@ -20,27 +20,24 @@ type SignUpProps = {
 const SignUp = (props: SignUpProps) => {
 
   // Services
+
   let theme = createMuiTheme();
   theme = responsiveFontSizes(theme);
   const classes = useStyles();
-  const { signupHandler } = useAuth();
+  const { signUpHandler } = useAuth()!;
 
   // State
+
   const [fullName, setFullName] = useState('');
-  const [fullNameErrorMsg, setFullNameErrorMsg] = useState('');
-
   const [email, setEmail] = useState('');
-  const [emailErrorMsg, setEmailErrorMsg] = useState('');
-
   const [password, setPassword] = useState('');
-  const [passwordErrorMsg, setPasswordErrorMsg] = useState('');
-
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmPasswordErrorMsg, setConfirmPasswordErrorMsg] = useState('');
+
+  const [triggerCheckValue, setTriggerCheckValue] = useState(false);
 
   // Functions
 
-  const checkFullName = async (): Promise<string> => {
+  const checkFullName = async (fullName: string): Promise<string> => {
     let errorMsg = '';
 
     if (fullName.length === 0) {
@@ -52,14 +49,7 @@ const SignUp = (props: SignUpProps) => {
     return errorMsg;    
   }
 
-  // Check fullName whenever it changes
-  React.useEffect(() => {
-
-    checkFullName().then(errorMsg => setFullNameErrorMsg(errorMsg));
-
-  }, [fullName]);
-
-  const checkEmail = async (): Promise<string> => {
+  const checkEmail = async (email: string): Promise<string> => {
     let reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     let errorMsg = '';
 
@@ -72,14 +62,7 @@ const SignUp = (props: SignUpProps) => {
     return errorMsg;
   }
 
-  // Check email whenever it changes
-  React.useEffect(() => {
-
-    checkEmail().then(errorMsg => setEmailErrorMsg(errorMsg));
-
-  }, [email]);
-
-  const checkPassword = async (): Promise<string> => {
+  const checkPassword = async (password: string): Promise<string> => {
     let errorMsg = '';
 
     if (password.length === 0) {
@@ -91,14 +74,7 @@ const SignUp = (props: SignUpProps) => {
     return errorMsg;
   }
 
-  // Check password whenever it changes
-  React.useEffect(() => {
-
-    checkPassword().then(errorMsg => setPasswordErrorMsg(errorMsg));
-
-  }, [password]);
-
-  const checkConfirmPassword = async (): Promise<string> => {
+  const checkConfirmPassword = async (confirmPassword: string): Promise<string> => {
     let errorMsg = '';
 
     if (confirmPassword.length === 0) {
@@ -110,25 +86,22 @@ const SignUp = (props: SignUpProps) => {
     return errorMsg;
   }
 
-  // Check confirmPassword whenever it changes
-  React.useEffect(() => {
-
-    checkConfirmPassword().then(errorMsg => setConfirmPasswordErrorMsg(errorMsg));
-
-  }, [confirmPassword]);
-
   const handleSubmit = (event: React.FormEvent) => {
 
     const checkForm = async (): Promise<boolean> => {
   
       const results = await Promise.all([
-        checkEmail(),
-        checkFullName(),
-        checkConfirmPassword(),
-        checkPassword()
+        checkEmail(email),
+        checkFullName(fullName),
+        checkConfirmPassword(confirmPassword),
+        checkPassword(password)
       ]);
-  
-      return results.every((value:string) => value.length === 0);
+      
+      setTriggerCheckValue(true);
+      const result = results.every((value:string) => value.length === 0);
+      setTriggerCheckValue(false);
+
+      return result;
     }
 
     event.preventDefault();
@@ -136,13 +109,11 @@ const SignUp = (props: SignUpProps) => {
     checkForm().then((result:boolean) => {
 
       if (result) {
-        signupHandler(fullName, email, password, confirmPassword);
+        signUpHandler(fullName, email, password, confirmPassword);
       } 
 
     });
-
   }
-
 
   return (
     <>
@@ -155,13 +126,14 @@ const SignUp = (props: SignUpProps) => {
           />
           <form className={ classes.form }>
             <CardContent>
-                <Grid container>
+                <Grid container spacing={ 2 }>
                   <Grid item xs={ 12 }>
                     <StringFormInput 
                       field="Full Name"
                       value={ fullName }
                       setValue={ setFullName }
-                      errorMsg={ fullNameErrorMsg }
+                      checkValue={ checkFullName }
+                      triggerCheckValue={ triggerCheckValue }
                       classes={ classes.form_control }
                     />
                   </Grid>
@@ -170,7 +142,8 @@ const SignUp = (props: SignUpProps) => {
                       field="Email"
                       value={ email }
                       setValue={ setEmail }
-                      errorMsg={ emailErrorMsg }
+                      checkValue={ checkEmail }
+                      triggerCheckValue={ triggerCheckValue }
                       classes={ classes.form_control }
                     />
                   </Grid>
@@ -179,7 +152,8 @@ const SignUp = (props: SignUpProps) => {
                       field="Password"
                       value={ password }
                       setValue={ setPassword }
-                      errorMsg={ passwordErrorMsg }
+                      checkValue={ checkPassword }
+                      triggerCheckValue={ triggerCheckValue }
                       type="password"
                       classes={ classes.form_control }
                     />
@@ -189,7 +163,8 @@ const SignUp = (props: SignUpProps) => {
                       field="Confirm Password"
                       value={ confirmPassword }
                       setValue={ setConfirmPassword }
-                      errorMsg={ confirmPasswordErrorMsg }
+                      checkValue={ checkConfirmPassword }
+                      triggerCheckValue={ triggerCheckValue }
                       type="password"
                       classes={ classes.form_control }
                     />
