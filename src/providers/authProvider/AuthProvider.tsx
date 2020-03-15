@@ -1,16 +1,28 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { LOGIN, SIGNUP } from '../../graphql/mutations/Auth';
-import CustomModal from '../../components/ui/customModal/CustomModal';
+import { LOG_IN, SIGN_UP, LOG_OUT } from '../../graphql/mutations/Auth';
+import { Alert } from '@material-ui/lab';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from './AuthProviderStyles';
+import { getGeneralErrorMsg } from '../../utils/ErrorHandler';
+import { useHistory } from "react-router-dom";
 
-const AuthContext = React.createContext({
-  data: { user: null, messages: null },
-  loginHandler: (email: string, password: string) => {},
-  signupHandler: (fullname: string, email: string, password: string, passwordConfirmation: string) => {}
-});
+type Context = {
+  currentUser: {
+    email: string,
+    full_name: string,
+    role: {
+      type: string
+    },
+    token: string
+  } | null,
+  logInHandler: (email: string, password: string) => void,
+  logOutHandler: () => void,
+  signUpHandler: (fullname: string, email: string, password: string, passwordConfirmation: string) => void
+}
+
+const AuthContext = React.createContext<Context | null>(null);
 
 type Props = {
   children: ReactNode
@@ -21,47 +33,79 @@ const AuthProvider = ({ children } : Props) => {
   // Services 
 
   const classes = useStyles();
-  const [loginMutation] = useMutation(LOGIN);
-  const [signupMutation] = useMutation(SIGNUP);
+  const history = useHistory();
+  const [logInMutation] = useMutation(LOG_IN);
+  const [logOutMutation] = useMutation(LOG_OUT);
+  const [signUpMutation] = useMutation(SIGN_UP);
 
   // State 
   
-  const [modalText, setModalText] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // code for pre-loading token or any other user information
+  useEffect(() => {
+    return () => { window.removeEventListener('storage', localStorageUpdated) }
+  });
 
- //if (weAreStillWaitingToGetUserData) {
- //  return <FullPageSpinner />
- //}
- 
-  // data should be filled with information about the user and session data
-  let data = { user: null, messages: null };
+  const localStorageUpdated = () => {
+    if (localStorage.getItem('currentUser') === null) {
+      currentUser = null;
+    } else {
+      currentUser = localStorage.getItem('currentUser');
+    }
+  }
+  window.addEventListener('storage', localStorageUpdated);
 
-  const loginHandler = (email: string, password: string) => {
+  let currentUser = null;
+  if (localStorage.getItem('currentUser') !== null) {
+    currentUser = JSON.parse(localStorage.getItem('currentUser')!);
+  }
+
+  const logInHandler = (email: string, password: string) => {
     
     setLoading(true);
 
-    loginMutation( { variables: { 
+    logInMutation( { variables: { 
       email: email, 
       password: password
     }})
-    .then((data) => {
-      // TODO: implementation of storing user in localstorage
-      console.log(data);
+    .then(({ data }) => {
+      localStorage.setItem('currentUser', JSON.stringify(data.signIn));
       setLoading(false);
     })
     .catch(error => { 
-      console.log(error);
-      setShowModal(true);
-      setModalText('Error with connection');
+      setShowError(true);
+      setErrorText(getErrorMsg(error));
       setLoading(false);
     });
-
   };
 
-  const signupHandler = (fullname: string, email: string, password: string,
+  const logOutHandler = () => {
+    
+    setLoading(true);
+
+    logOutMutation( { variables: {} })
+    .then(({ data }) => {
+      history.push("/");
+      localStorage.removeItem('currentUser');
+      setLoading(false);
+    })
+    .catch(error => { 
+
+      if (error.message === 'GraphQL error: Not authenticated') {
+        history.push("/");
+        localStorage.removeItem('currentUser');
+      } else {
+        setShowError(true);
+        setErrorText(getErrorMsg(error));
+      }
+
+      setLoading(false);
+    });
+  };
+
+  const signUpHandler = (fullname: string, email: string, password: string,
     passwordConfirmation: string) => {
 
       setLoading(true);
@@ -73,22 +117,53 @@ const AuthProvider = ({ children } : Props) => {
         passwordConfirmation: passwordConfirmation
       }
 
-      signupMutation( {variables: { userDetails: userDetails }})
+      signUpMutation( {variables: { userDetails: userDetails }})
       .then((data) => {
-        console.log(data);
-        setLoading(false);
+        logInHandler(userDetails.email, userDetails.password);
       })
       .catch(error => {
-        setShowModal(true);
-        setModalText('Error with connection');
+        setShowError(true);
+        setErrorText(getErrorMsg(error));
         setLoading(false);
       });
+  };
+
+  const getErrorMsg = (error: any): string => {
+    let message = '';
+    switch (error.message) {
+      case 'GraphQL error: email: has already been taken\n':
+        message = 'This email is already registered';
+        break;
+      case 'GraphQL error: invalid password':
+        message = 'Password does not match';
+        break;
+      case 'GraphQL error: User not found':
+        message = 'Email not registered';
+        break;
+      default: 
+        message = getGeneralErrorMsg(error);
+        break;
+    }
+
+    return message;
+  }; 
+
+  if (showError) {
+    setTimeout(() => setShowError(false), 5_000);
   }
 
+  let errorBox = (
+    <div className={ classes.alert }>
+      <Alert variant="filled" severity="error">
+        { errorText }
+      </Alert>
+    </div>
+  );
+
   return (
-    <AuthContext.Provider value={{ data, loginHandler, signupHandler }}>
+    <AuthContext.Provider value={{ currentUser, logInHandler, logOutHandler, signUpHandler }}>
       { children }
-      <CustomModal title="Message" text={ modalText } show={ showModal } setShow={ setShowModal }/>
+      { showError ? errorBox : null}
       <Backdrop className={classes.backdrop} open={ loading }>
         <CircularProgress color="secondary" size="10rem" />
       </Backdrop>

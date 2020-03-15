@@ -5,7 +5,7 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import { BrowserRouter } from 'react-router-dom';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphiql'
+  uri: 'http://192.168.0.19:4000/graphiql'
 });
 
 type Props = {
