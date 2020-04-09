@@ -5,13 +5,15 @@ import { Alert } from '@material-ui/lab';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from './AuthProviderStyles';
-import { getGeneralErrorMsg } from '../../utils/ErrorHandler';
+import { handleGeneralErrors } from '../../utils/ErrorHandler';
 import { useHistory } from "react-router-dom";
 
 type Context = {
   currentUser: {
+    id: Number,
     email: string,
     full_name: string,
+    avatar: string,
     role: {
       type: string
     },
@@ -19,7 +21,8 @@ type Context = {
   } | null,
   logInHandler: (email: string, password: string) => void,
   logOutHandler: () => void,
-  signUpHandler: (fullname: string, email: string, password: string, passwordConfirmation: string) => void
+  signUpHandler: (fullname: string, email: string, password: string, passwordConfirmation: string) => void,
+  updateCurrentUser: (newCurrentUser: React.SetStateAction<Context["currentUser"] | null>) => void
 }
 
 const AuthContext = React.createContext<Context | null>(null);
@@ -34,6 +37,7 @@ const AuthProvider = ({ children } : Props) => {
 
   const classes = useStyles();
   const history = useHistory();
+  const [currentUser, setCurrentUser] = useState(null);
   const [logInMutation] = useMutation(LOG_IN);
   const [logOutMutation] = useMutation(LOG_OUT);
   const [signUpMutation] = useMutation(SIGN_UP);
@@ -50,16 +54,15 @@ const AuthProvider = ({ children } : Props) => {
 
   const localStorageUpdated = () => {
     if (localStorage.getItem('currentUser') === null) {
-      currentUser = null;
+      setCurrentUser(null);
     } else {
-      currentUser = localStorage.getItem('currentUser');
+      setCurrentUser(JSON.parse(localStorage.getItem('currentUser')!));
     }
   }
   window.addEventListener('storage', localStorageUpdated);
 
-  let currentUser = null;
-  if (localStorage.getItem('currentUser') !== null) {
-    currentUser = JSON.parse(localStorage.getItem('currentUser')!);
+  if (localStorage.getItem('currentUser') !== null && currentUser === null) {
+    setCurrentUser(JSON.parse(localStorage.getItem('currentUser')!));
   }
 
   const logInHandler = (email: string, password: string) => {
@@ -76,7 +79,8 @@ const AuthProvider = ({ children } : Props) => {
     })
     .catch(error => { 
       setShowError(true);
-      setErrorText(getErrorMsg(error));
+      const errorMsg = handleErrors(error, history)
+      setErrorText(errorMsg);
       setLoading(false);
     });
   };
@@ -87,20 +91,14 @@ const AuthProvider = ({ children } : Props) => {
 
     logOutMutation( { variables: {} })
     .then(({ data }) => {
-      history.push("/");
       localStorage.removeItem('currentUser');
+      history.push("/");
       setLoading(false);
     })
     .catch(error => { 
-
-      if (error.message === 'GraphQL error: Not authenticated') {
-        history.push("/");
-        localStorage.removeItem('currentUser');
-      } else {
-        setShowError(true);
-        setErrorText(getErrorMsg(error));
-      }
-
+      setShowError(true);
+      const errorMsg = handleErrors(error, history)
+      setErrorText(errorMsg);
       setLoading(false);
     });
   };
@@ -123,25 +121,31 @@ const AuthProvider = ({ children } : Props) => {
       })
       .catch(error => {
         setShowError(true);
-        setErrorText(getErrorMsg(error));
+        const errorMsg = handleErrors(error, history)
+        setErrorText(errorMsg);
         setLoading(false);
       });
   };
 
-  const getErrorMsg = (error: any): string => {
+  const updateCurrentUser = (newCurrentUser: any) => {
+    setCurrentUser(newCurrentUser);
+    localStorage.setItem('currentUser', JSON.stringify(newCurrentUser));
+  }
+
+  const handleErrors = (error: any, history: any): string => {
     let message = '';
     switch (error.message) {
       case 'GraphQL error: email: has already been taken\n':
         message = 'This email is already registered';
         break;
-      case 'GraphQL error: invalid password':
+      case 'GraphQL error: password does not match':
         message = 'Password does not match';
         break;
-      case 'GraphQL error: User not found':
+      case 'GraphQL error: not_found':
         message = 'Email not registered';
         break;
       default: 
-        message = getGeneralErrorMsg(error);
+        message = handleGeneralErrors(error, history);
         break;
     }
 
@@ -161,7 +165,7 @@ const AuthProvider = ({ children } : Props) => {
   );
 
   return (
-    <AuthContext.Provider value={{ currentUser, logInHandler, logOutHandler, signUpHandler }}>
+    <AuthContext.Provider value={{ currentUser, logInHandler, logOutHandler, signUpHandler, updateCurrentUser }}>
       { children }
       { showError ? errorBox : null}
       <Backdrop className={classes.backdrop} open={ loading }>
@@ -171,7 +175,7 @@ const AuthProvider = ({ children } : Props) => {
   ); 
 }
 
-function useAuth() {
+const useAuth = () => {
   const context = React.useContext(AuthContext);
 
   if (context === undefined) {
