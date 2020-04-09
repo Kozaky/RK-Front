@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef, ChangeEvent, MouseEvent } from 'react';
+import { useHistory } from "react-router-dom";
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -6,40 +7,78 @@ import Typography from '@material-ui/core/Typography';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Link from '@material-ui/core/Link';
 import useStyles from './CustomAppBarStyles';
 import { useAuth } from '../../../providers/authProvider/AuthProvider';
+import { useMutation } from '@apollo/react-hooks';
+import { UPLOAD_AVATAR } from '../../../graphql/mutations/User';
+import { handleGeneralErrors } from '../../../utils/ErrorHandler';
+import { Avatar } from '@material-ui/core';
 
 const CustomAppBar = () => {
 
     //Services
     const classes = useStyles();
+    const history = useHistory();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-    const { currentUser, logOutHandler } = useAuth()!;
+
+    const { currentUser, logOutHandler, updateCurrentUser } = useAuth()!;
+    
+
+    const src = currentUser !== null ? 
+                "data:image/png;base64, " + currentUser.avatar : 
+                "";
+    const [avatarImg, setAvatarImg] = React.useState(src);
+
+    const [uploadImage] = useMutation(UPLOAD_AVATAR);
+    const avatarInput = useRef<HTMLInputElement>(null);
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-    function handleProfileMenuOpen(event: any) {
-        setAnchorEl(event.currentTarget);
+    const handleProfileMenuOpen = (event: any) => {
+      setAnchorEl(event.currentTarget);
     }
 
-    function handleMobileMenuClose() {
-        setMobileMoreAnchorEl(null);
+    const handleMobileMenuClose = () => {
+      setMobileMoreAnchorEl(null);
     }
 
-    function handleMenuClose() {
-        setAnchorEl(null);
-        handleMobileMenuClose();
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+      handleMobileMenuClose();
     }
 
-    function handleMobileMenuOpen(event: any) {
-        setMobileMoreAnchorEl(event.currentTarget);
+    const handleMobileMenuOpen = (event: any) => {
+      setMobileMoreAnchorEl(event.currentTarget);
+    }
+
+    const showAvatarUploader = (event: MouseEvent) => {
+      event.preventDefault();
+      avatarInput.current!.click();
+    }
+
+    const uploadAvatarHanlder = (event: ChangeEvent<HTMLInputElement>) => {
+      event.preventDefault();
+
+      const userUpdateDetails = {
+        id: Number(currentUser!.id),
+        avatar: event.target.files?.item(0)!
+      }
+
+      uploadImage( { variables: {userUpdateDetails: userUpdateDetails }})
+      .then(({ data }) => {
+        currentUser!.avatar = data.updateUser.avatar;
+        updateCurrentUser(currentUser);
+        const src = "data:image/png;base64, " + currentUser!.avatar;
+        setAvatarImg(src);
+      })
+      .catch(error => { 
+        handleGeneralErrors(error, history);
+      });
     }
 
     const menuId = 'custom-app-bar-desktop';
@@ -56,6 +95,13 @@ const CustomAppBar = () => {
               <Link href="#" onClick={logOutHandler}>
                 <Typography color="secondary" noWrap>
                   Log Out
+                </Typography>
+              </Link>
+            </MenuItem>
+            <MenuItem onClick={handleMenuClose}>
+              <Link href="#" onClick={showAvatarUploader}>
+                <Typography color="secondary" noWrap>
+                  Change avatar
                 </Typography>
               </Link>
             </MenuItem>
@@ -86,7 +132,9 @@ const CustomAppBar = () => {
                     aria-controls="primary-search-account-menu"
                     aria-haspopup="true"
                     color="inherit">
-                    <AccountCircle />
+                    <Badge badgeContent={0} color="secondary">
+                      <Avatar src={avatarImg}></Avatar>
+                    </Badge>
                 </IconButton>
                 <p>Profile</p>
             </MenuItem>
@@ -107,7 +155,9 @@ const CustomAppBar = () => {
             aria-haspopup="true"
             onClick={handleProfileMenuOpen}
             color="inherit">
-            <AccountCircle />
+            <Badge badgeContent={0} color="secondary">
+              <Avatar src={avatarImg}></Avatar>
+            </Badge>
         </IconButton>
       </div>
     );
@@ -133,6 +183,14 @@ const CustomAppBar = () => {
                         Reklama
                     </Typography>
                     <div className={classes.grow} />
+
+                    <input id="avatarInput"
+                      type="file" 
+                      ref={avatarInput} 
+                      style={{display: 'none'}}
+                      accept="image/png;image/jpg;image/jpeg"
+                      onChange={uploadAvatarHanlder}
+                    />
                     {currentUser !== null ? sectionDesktop : null}
                     {currentUser !== null ? sectionMobile : null}
                 </Toolbar>

@@ -8,7 +8,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import useStyles from './LoginStyles';
+import useStyles from './LogInStyles';
 import { createMuiTheme, responsiveFontSizes, ThemeProvider } from '@material-ui/core/styles';
 import LockIcon from '@material-ui/icons/Lock';
 import FormHelperText from '@material-ui/core/FormHelperText/FormHelperText';

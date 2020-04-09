@@ -3,8 +3,10 @@ import { gql } from 'apollo-boost';
 export const LOG_IN = gql`
   mutation($email: String!, $password: String!) {
     signIn(email: $email, password: $password) {
+      id,
       email,
       full_name,
+      avatar,
       role {
         type
       },
