@@ -10,195 +10,207 @@ import Menu from '@material-ui/core/Menu';
 import MailIcon from '@material-ui/icons/Mail';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Link from '@material-ui/core/Link';
+import { Link as RouterLink } from "react-router-dom";
 import useStyles from './CustomAppBarStyles';
 import { useAuth } from '../../../providers/authProvider/AuthProvider';
 import { useMutation } from '@apollo/react-hooks';
-import { UPLOAD_AVATAR } from '../../../graphql/mutations/User';
+import { UPLOAD_AVATAR } from '../../../graphql/User';
 import { handleGeneralErrors } from '../../../utils/ErrorHandler';
 import { Avatar } from '@material-ui/core';
 
 const CustomAppBar = () => {
 
-    //Services
-    const classes = useStyles();
-    const history = useHistory();
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  //Services
+  const classes = useStyles();
+  const history = useHistory();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
-    const { currentUser, logOutHandler, updateCurrentUser } = useAuth()!;
-    
+  const { currentUser, logOutHandler, updateCurrentUser } = useAuth()!;
 
-    const src = currentUser !== null ? 
-                "data:image/png;base64, " + currentUser.avatar : 
-                "";
-    const [avatarImg, setAvatarImg] = React.useState(src);
+  const src = currentUser !== null ?
+    "data:image/png;base64, " + currentUser.avatar :
+    "";
+  const [avatarImg, setAvatarImg] = React.useState(src);
 
-    const [uploadImage] = useMutation(UPLOAD_AVATAR);
-    const avatarInput = useRef<HTMLInputElement>(null);
+  const [uploadImage] = useMutation(UPLOAD_AVATAR);
+  const avatarInput = useRef<HTMLInputElement>(null);
 
-    const isMenuOpen = Boolean(anchorEl);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-    const handleProfileMenuOpen = (event: any) => {
-      setAnchorEl(event.currentTarget);
+  const handleProfileMenuOpen = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  }
+
+  const handleMobileMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    handleMobileMenuClose();
+  }
+
+  const handleMobileMenuOpen = (event: any) => {
+    setMobileMoreAnchorEl(event.currentTarget);
+  }
+
+  const showAvatarUploader = (event: MouseEvent) => {
+    event.preventDefault();
+    avatarInput.current!.click();
+  }
+
+  const uploadAvatarHanlder = (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    const userUpdateDetails = {
+      id: Number(currentUser!.id),
+      avatar: event.target.files?.item(0)!
     }
 
-    const handleMobileMenuClose = () => {
-      setMobileMoreAnchorEl(null);
-    }
-
-    const handleMenuClose = () => {
-      setAnchorEl(null);
-      handleMobileMenuClose();
-    }
-
-    const handleMobileMenuOpen = (event: any) => {
-      setMobileMoreAnchorEl(event.currentTarget);
-    }
-
-    const showAvatarUploader = (event: MouseEvent) => {
-      event.preventDefault();
-      avatarInput.current!.click();
-    }
-
-    const uploadAvatarHanlder = (event: ChangeEvent<HTMLInputElement>) => {
-      event.preventDefault();
-
-      const userUpdateDetails = {
-        id: Number(currentUser!.id),
-        avatar: event.target.files?.item(0)!
-      }
-
-      uploadImage( { variables: {userUpdateDetails: userUpdateDetails }})
+    uploadImage({ variables: { userUpdateDetails: userUpdateDetails } })
       .then(({ data }) => {
         currentUser!.avatar = data.updateUser.avatar;
         updateCurrentUser(currentUser);
         const src = "data:image/png;base64, " + currentUser!.avatar;
         setAvatarImg(src);
       })
-      .catch(error => { 
+      .catch(error => {
         handleGeneralErrors(error, history);
       });
-    }
+  }
 
-    const menuId = 'custom-app-bar-desktop';
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}>
-            <MenuItem onClick={handleMenuClose}>
-              <Link href="#" onClick={logOutHandler}>
-                <Typography color="secondary" noWrap>
-                  Log Out
-                </Typography>
-              </Link>
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-              <Link href="#" onClick={showAvatarUploader}>
-                <Typography color="secondary" noWrap>
-                  Change avatar
-                </Typography>
-              </Link>
-            </MenuItem>
-        </Menu>
-    );
+  const adminPanelLink = (
+    <MenuItem onClick={handleMenuClose}>
+      <RouterLink to="/adminPanel" className={classes.linkWithoutDecoration}>
+        <Typography color="secondary" noWrap>
+          Admin. Panel
+          </Typography>
+      </RouterLink>
+    </MenuItem>
+  );
 
-    const mobileMenuId = 'custom-app-bar-mobile';
-    const renderMobileMenu = (
-        <Menu
-            anchorEl={mobileMoreAnchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={mobileMenuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMobileMenuOpen}
-            onClose={handleMobileMenuClose}>
-            <MenuItem>
-                <IconButton aria-label="Show new mails" color="inherit">
-                    <Badge badgeContent={0} color="secondary">
-                        <MailIcon />
-                    </Badge>
-                </IconButton>
-                <p>Messages</p>
-            </MenuItem>
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    aria-label="Account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit">
-                    <Badge badgeContent={0} color="secondary">
-                      <Avatar src={avatarImg}></Avatar>
-                    </Badge>
-                </IconButton>
-                <p>Profile</p>
-            </MenuItem>
-        </Menu>
-    );
 
-    const sectionDesktop = (
-      <div className={classes.sectionDesktop}>
+  const menuId = 'custom-app-bar-desktop';
+  const renderMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      id={menuId}
+      keepMounted
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={isMenuOpen}
+      onClose={handleMenuClose}>
+      <MenuItem onClick={handleMenuClose}>
+        <Link href="#" onClick={logOutHandler} className={classes.linkWithoutDecoration}>
+          <Typography color="secondary" noWrap>
+            Log Out
+          </Typography>
+        </Link>
+      </MenuItem>
+      <MenuItem onClick={handleMenuClose}>
+        <Link href="#" onClick={showAvatarUploader} className={classes.linkWithoutDecoration}>
+          <Typography color="secondary" noWrap>
+            Change avatar
+          </Typography>
+        </Link>
+      </MenuItem>
+      {currentUser?.role.type === "ADMIN" ? adminPanelLink : null}
+    </Menu>
+  );
+
+  const mobileMenuId = 'custom-app-bar-mobile';
+  const renderMobileMenu = (
+    <Menu
+      anchorEl={mobileMoreAnchorEl}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      id={mobileMenuId}
+      keepMounted
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={isMobileMenuOpen}
+      onClose={handleMobileMenuClose}>
+      <MenuItem>
         <IconButton aria-label="Show new mails" color="inherit">
-            <Badge badgeContent={0} color="secondary">
-                <MailIcon />
-            </Badge>
+          <Badge badgeContent={0} color="secondary">
+            <MailIcon />
+          </Badge>
         </IconButton>
+        <p>Messages</p>
+      </MenuItem>
+      <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
-            edge="end"
-            aria-label="Account of current user"
-            aria-controls={menuId}
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit">
-            <Badge badgeContent={0} color="secondary">
-              <Avatar src={avatarImg}></Avatar>
-            </Badge>
+          aria-label="Account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit">
+          <Badge badgeContent={0} color="secondary">
+            <Avatar src={avatarImg}></Avatar>
+          </Badge>
         </IconButton>
-      </div>
-    );
+        <p>Profile</p>
+      </MenuItem>
+    </Menu>
+  );
 
-    const sectionMobile = (
-      <div className={classes.sectionMobile}>
-        <IconButton
-            aria-label="Show more"
-            aria-controls={mobileMenuId}
-            aria-haspopup="true"
-            onClick={handleMobileMenuOpen}
-            color="inherit">
-            <MoreIcon />
-        </IconButton>
-      </div>
-    );
+  const sectionDesktop = (
+    <div className={classes.sectionDesktop}>
+      <IconButton aria-label="Show new mails" color="inherit">
+        <Badge badgeContent={0} color="secondary">
+          <MailIcon />
+        </Badge>
+      </IconButton>
+      <IconButton
+        edge="end"
+        aria-label="Account of current user"
+        aria-controls={menuId}
+        aria-haspopup="true"
+        onClick={handleProfileMenuOpen}
+        color="inherit">
+        <Badge badgeContent={0} color="secondary">
+          <Avatar src={avatarImg}></Avatar>
+        </Badge>
+      </IconButton>
+    </div>
+  );
 
-    return (
-        <div className={classes.grow}>
-            <AppBar position="static" color="secondary">
-                <Toolbar>
-                    <Typography variant="h3" noWrap>
-                        Reklama
+  const sectionMobile = (
+    <div className={classes.sectionMobile}>
+      <IconButton
+        aria-label="Show more"
+        aria-controls={mobileMenuId}
+        aria-haspopup="true"
+        onClick={handleMobileMenuOpen}
+        color="inherit">
+        <MoreIcon />
+      </IconButton>
+    </div>
+  );
+
+  return (
+    <div className={classes.grow}>
+      <AppBar position="static" color="secondary">
+        <Toolbar>
+          <Typography variant="h3" noWrap>
+            Reklama
                     </Typography>
-                    <div className={classes.grow} />
+          <div className={classes.grow} />
 
-                    <input id="avatarInput"
-                      type="file" 
-                      ref={avatarInput} 
-                      style={{display: 'none'}}
-                      accept="image/png;image/jpg;image/jpeg"
-                      onChange={uploadAvatarHanlder}
-                    />
-                    {currentUser !== null ? sectionDesktop : null}
-                    {currentUser !== null ? sectionMobile : null}
-                </Toolbar>
-            </AppBar>
-            {renderMobileMenu}
-            {renderMenu}
-        </div>
-    );
+          <input id="avatarInput"
+            type="file"
+            ref={avatarInput}
+            style={{ display: 'none' }}
+            accept="image/png;image/jpg;image/jpeg"
+            onChange={uploadAvatarHanlder}
+          />
+          {currentUser !== null ? sectionDesktop : null}
+          {currentUser !== null ? sectionMobile : null}
+        </Toolbar>
+      </AppBar>
+      {renderMobileMenu}
+      {renderMenu}
+    </div>
+  );
 }
 
 export default CustomAppBar;

@@ -23,34 +23,34 @@ export type TopicProps = {
 const Topics = (props: TopicProps) => {
 
   // Services
-  
+
   const classes = useStyles();
 
   return (
     <>
       <Card className={classes.root}>
-      <CardHeader
-        avatar={ <Avatar aria-label="avatar" src={ props.avatar }/> }
-        title={ props.header }
-        subheader={ props.subheader }
-      />
-      <CardMedia
-        className={ classes.media }
-        image={ props.image }
-        title={ props.imageTitle }
-      />
-      <CardContent>
-        <Typography variant="body2" component="p">
-                  { props.shortDescription }
-                </Typography>
+        <CardHeader
+          avatar={<Avatar aria-label="avatar" src={props.avatar} />}
+          title={props.header}
+          subheader={props.subheader}
+        />
+        <CardMedia
+          className={classes.media}
+          image={props.image}
+          title={props.imageTitle}
+        />
+        <CardContent>
+          <Typography variant="body2" component="p">
+            {props.shortDescription}
+          </Typography>
         </CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="likes">
-          <FavoriteIcon className={ classes.favoriteIcon }/>
-        </IconButton>
-        { props.numLikes }
-      </CardActions>
-    </Card>
+        <CardActions disableSpacing>
+          <IconButton aria-label="likes">
+            <FavoriteIcon className={classes.favoriteIcon} />
+          </IconButton>
+          {props.numLikes}
+        </CardActions>
+      </Card>
     </>
   );
 }

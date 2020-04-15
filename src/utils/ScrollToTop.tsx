@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { RouteComponentProps } from 'react-router-dom';
 
-function ScrollToTop({ history }: RouteComponentProps) {
+const ScrollToTop = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     const unlisten = history.listen(() => {
       window.scrollTo(0, 0);
@@ -10,7 +10,7 @@ function ScrollToTop({ history }: RouteComponentProps) {
     return () => {
       unlisten();
     }
-  }, []);
+  }, [history]);
 
   return (null);
 }
