@@ -28,8 +28,10 @@ const StringFormInput = (props: StringFormInputProps) => {
   // Functions
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleChange');
     props.checkValue(e.currentTarget.value).then((errorMsg: string) => setErrorMsg(errorMsg));
     props.setValue(e.currentTarget.value);
+    console.log(e.currentTarget.value);
   }
 
   // Logic
@@ -39,17 +41,17 @@ const StringFormInput = (props: StringFormInputProps) => {
   }
 
   return (
-    <FormControl className={ props.classes } 
-      error={ errorMsg.length !==0 }
+    <FormControl className={props.classes}
+      error={errorMsg.length !== 0}
     >
-      <InputLabel htmlFor={ props.field }>{ props.field }</InputLabel>
-      <Input id={ props.field } value={ props.value } type={ props.type }
-        onChange={ handleChange } aria-describedby="StringFormInput-error-text"/>
-      <FormHelperText id="StringFormInput-error-text" 
-        hidden={ errorMsg.length === 0 }
-        className={ classes.text }
+      <InputLabel htmlFor={props.field}>{props.field}</InputLabel>
+      <Input id={props.field} value={props.value} type={props.type}
+        onChange={handleChange} aria-describedby="StringFormInput-error-text" />
+      <FormHelperText id="StringFormInput-error-text"
+        hidden={errorMsg.length === 0}
+        className={classes.text}
       >
-        { errorMsg }
+        {errorMsg}
       </FormHelperText>
     </FormControl>
   );

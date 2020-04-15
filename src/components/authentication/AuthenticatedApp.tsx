@@ -9,28 +9,41 @@ import {
   Switch,
   Route
 } from "react-router-dom";
+import AdminPanel from '../adminPanel/AdminPanel';
+import AuthorizedRoute from "../../utils/AuthorizedRoute";
+import PanelUsers from "../adminPanel/options/PanelUsers";
+import PanelTopics from "../adminPanel/options/PanelTopics/PanelTopics";
 
 const AuthenticatedApp = () => {
 
   return (
     <>
-      <CustomAppBar/>
       <Router>
+        <CustomAppBar />
         <ScrollToTop />
         <Switch>
-            <Route exact path="/">
-              <Home />
-            </Route>
-            <Route exact path="/topics">
-              <Topics />
-            </Route>
-            <Route exact path={`/topics/:topicId`}>
-              <TopicDetails />
-            </Route>
-            <Route path="*">
-              <Home />
-            </Route>
-          </Switch>
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <Route exact path="/topics">
+            <Topics />
+          </Route>
+          <Route exact path={`/topics/:topicId`}>
+            <TopicDetails />
+          </Route>
+          <AuthorizedRoute exact path="/adminPanel" authorization="ADMIN">
+            <AdminPanel />
+          </AuthorizedRoute>
+          <AuthorizedRoute exact path="/adminPanel/users" authorization="ADMIN">
+            <PanelUsers />
+          </AuthorizedRoute>
+          <AuthorizedRoute exact path="/adminPanel/topics" authorization="ADMIN">
+            <PanelTopics />
+          </AuthorizedRoute>
+          <Route path="*">
+            <Home />
+          </Route>
+        </Switch>
       </Router>
     </>
   );

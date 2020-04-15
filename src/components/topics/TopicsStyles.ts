@@ -1,6 +1,4 @@
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import SpanishSquare from '../../assets/spanishSquare.jpg';
-import { red } from '@material-ui/core/colors';
 
 export default makeStyles((theme: Theme) =>
   createStyles({

@@ -11,48 +11,33 @@ import Typography from '@material-ui/core/Typography';
 import { useParams } from 'react-router-dom';
 import SpanishSquare from '../../../../assets/spanishSquare.jpg';
 import Divider from '@material-ui/core/Divider';
-import SpeedDial from '@material-ui/lab/SpeedDial';
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
-import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import ShareIcon from '@material-ui/icons/Share';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Chat from '@material-ui/icons/Chat';
-import { Grid } from '@material-ui/core';
 
 type RouteParams = {
   id: string
 }
 
-const Detail = () => {
+const TopicDetails = () => {
 
   //TODO: load data for topic with id match.id
 
   // Services
-  
+
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
   const params = useParams<RouteParams>();
-
-  // Functions
-
-  const handleCloseSpeedDial = () => {
-    setOpen(false);
-  };
-
-  const handleOpenSpeedDial = () => {
-    setOpen(true);
-  };
 
   return (
     <>
-      <Card className={ classes.root }>
+      <Card className={classes.root}>
         <CardMedia
-          className={ classes.media }
-          image={ SpanishSquare }
+          className={classes.media}
+          image={SpanishSquare}
           title="Spanish Square"
         />
         <CardHeader
-          avatar={ <Avatar aria-label="avatar" src={ SpanishSquare }/> }
+          avatar={<Avatar aria-label="avatar" src={SpanishSquare} />}
           title="Dana Andriienko"
           subheader="6 March 2020"
         />
@@ -61,8 +46,8 @@ const Detail = () => {
           <Typography align="center" gutterBottom variant="h3" className={classes.title}>
             Long queue in the Inmigration Office
           </Typography>
-          <Typography align="justify" variant="body1" color="textSecondary" component="p" className={classes.paragraph}> 
-            Huge computer screens line a dark, windowless control room in Corvallis, Oregon, where engineers at the company Nuscale Power hope to define the next wave of nuclear energy. Glowing icons fill the screens, representing the power output of 12 miniature nuclear reactors. Together, these small modular reactors would generate about the same amount of power as one of the conventional nuclear plants that currently dot the United States – producing enough electricity to power 540,000 homes. On the glowing screens, a palm tree indicates which of the dozen units is on “island mode”, allowing a single reactor to run disconnected from the grid in case of an emergency. 
+          <Typography align="justify" variant="body1" color="textSecondary" component="p" className={classes.paragraph}>
+            Huge computer screens line a dark, windowless control room in Corvallis, Oregon, where engineers at the company Nuscale Power hope to define the next wave of nuclear energy. Glowing icons fill the screens, representing the power output of 12 miniature nuclear reactors. Together, these small modular reactors would generate about the same amount of power as one of the conventional nuclear plants that currently dot the United States – producing enough electricity to power 540,000 homes. On the glowing screens, a palm tree indicates which of the dozen units is on “island mode”, allowing a single reactor to run disconnected from the grid in case of an emergency.
           </Typography>
           <Typography align="justify" variant="body1" color="textSecondary" component="p" className={classes.paragraph}>
             This control room is just a mock-up, and the reactors depicted on the computer screens do not, in fact, exist. Yet Nuscale has invested more than $900m (£685m) in the development of small modular reactor (SMR) technology, which the company says represents the next generation of nuclear power plants. Nuscale is working on a full-scale prototype and says it is on track to break ground on its first nuclear power plant – a 720-megawatt project for a utility in Idaho – within two years. The US Nuclear Regulatory Commission has just completed the fourth phase of review of Nuscale’s design, the first SMR certification the commission has reviewed. The company expect final approval by the end of 2020. The US Department of Energy has already invested $317m (£241m) in the research and development of Nuscale’s SMR project.
@@ -84,8 +69,8 @@ const Detail = () => {
           </IconButton>
         </CardActions>
       </Card>
-   </>
+    </>
   );
 }
 
-export default Detail;
+export default TopicDetails;

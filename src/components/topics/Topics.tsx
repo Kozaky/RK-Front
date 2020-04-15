@@ -62,28 +62,28 @@ const Topics = () => {
   return (
     <>
       <Grid container justify="center" alignItems="stretch"
-        spacing={ 3 } className={ classes.root }>
+        spacing={3} className={classes.root}>
         {topics.map(topic => (
-          <Grid item className={ classes.topicsRoot } xs>
+          <Grid item className={classes.topicsRoot} xs>
             <Link to={`${match.url}/${1}`}>
               <Topic {...topic} />
             </Link>
           </Grid>
         ))}
         {topics.map(topic => (
-          <Grid item className={ classes.topicsRoot } xs>
+          <Grid item className={classes.topicsRoot} xs>
             <Link to={`${match.url}/${1}`}>
               <Topic {...topic} />
             </Link>
           </Grid>
         ))}
       </Grid>
-      <Drawer anchor="right" open={ isOpenDrawer } onClose={ toggleDrawer } className={ classes.drawer }>
+      <Drawer anchor="right" open={isOpenDrawer} onClose={toggleDrawer} className={classes.drawer}>
         <div
-          className={ classes.list }
+          className={classes.list}
           role="presentation"
-          onClick={ toggleDrawer }
-          onKeyDown={ toggleDrawer }
+          onClick={toggleDrawer}
+          onKeyDown={toggleDrawer}
         >
           <List>
             {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
@@ -104,10 +104,10 @@ const Topics = () => {
           </List>
         </div>
       </Drawer>
-      <Fab aria-label="search" color="secondary" className={ classes.searchButton } onClick={ toggleDrawer }>
+      <Fab aria-label="search" color="secondary" className={classes.searchButton} onClick={toggleDrawer}>
         <SearchIcon />
       </Fab>
-      <Fab aria-label="add" color="secondary" className={ classes.addButton }>
+      <Fab aria-label="add" color="secondary" className={classes.addButton}>
         <AddIcon />
       </Fab>
     </>
