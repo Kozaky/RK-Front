@@ -5,22 +5,17 @@ export default makeStyles((theme: Theme) =>
     grow: { 
       flexGrow: 1
     },
-    inputRoot: {
-      color: 'inherit',
-    },
-    inputInput: {
-      padding: theme.spacing(1, 1, 1, 7),
-      transition: theme.transitions.create('width'),
-      width: '100%',
-      [theme.breakpoints.up('md')]: {
-          width: 200,
-      },
-    },
     sectionDesktop: {
       display: 'none',
       [theme.breakpoints.up('md')]: {
           display: 'flex',
       },
+    },
+    linkWithoutDecoration: {
+      textDecoration: 'none',
+      '&:focus, &:hover, &:visited, &:link, &:active': {
+        textDecoration: 'none'
+      }
     },
     sectionMobile: {
       zIndex: theme.zIndex.drawer + 1,

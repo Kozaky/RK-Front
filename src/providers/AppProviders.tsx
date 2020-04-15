@@ -5,7 +5,7 @@ import { createLink } from 'apollo-absinthe-upload-link';
 import { ApolloClient } from 'apollo-client';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { ApolloLink, Observable } from 'apollo-link';
+import { ApolloLink } from 'apollo-link';
 import { onError } from 'apollo-link-error';
 import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/react-hooks';
@@ -50,9 +50,9 @@ const AppProviders = ({ children }: Props) => {
 
   return (
     <BrowserRouter>
-      <ApolloProvider client={ client }>
+      <ApolloProvider client={client}>
         <AuthProvider>
-          { children }
+          {children}
         </AuthProvider>
       </ApolloProvider>
     </BrowserRouter>
