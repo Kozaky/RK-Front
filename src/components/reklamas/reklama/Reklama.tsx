@@ -1,5 +1,5 @@
 import React from 'react';
-import useStyles from './TopicStyles';
+import useStyles from './ReklamaStyles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 
-export type TopicProps = {
+export type ReklamaProps = {
   avatar: string,
   header: string,
   subheader: string,
@@ -20,7 +20,7 @@ export type TopicProps = {
   numLikes: number
 }
 
-const Topics = (props: TopicProps) => {
+const Reklama = (props: ReklamaProps) => {
 
   // Services
 
@@ -30,13 +30,13 @@ const Topics = (props: TopicProps) => {
     <>
       <Card className={classes.root}>
         <CardHeader
-          avatar={<Avatar aria-label="avatar" src={props.avatar} />}
+          avatar={<Avatar aria-label="avatar" src={`data:image/png;base64,${props.avatar}`} />}
           title={props.header}
           subheader={props.subheader}
         />
         <CardMedia
           className={classes.media}
-          image={props.image}
+          image={`data:image/png;base64,${props.image}`}
           title={props.imageTitle}
         />
         <CardContent>
@@ -55,4 +55,4 @@ const Topics = (props: TopicProps) => {
   );
 }
 
-export default Topics;
+export default Reklama;

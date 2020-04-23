@@ -25,10 +25,6 @@ export default makeStyles((theme: Theme) =>
         }
       }
     },
-    drawerTitle: {
-      padding: 16,
-      fontWeight: 700
-    },
     gridRoot: {
       width: '100%',
       padding: 16,

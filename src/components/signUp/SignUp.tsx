@@ -44,9 +44,11 @@ const SignUp = (props: SignUpProps) => {
       errorMsg = 'Required';
     } else if (fullName.length < 8) {
       errorMsg = 'The full name must be 8 characters long';
+    } else if (fullName.length > 100) {
+      errorMsg = 'Full name too long';
     }
 
-    return errorMsg;    
+    return errorMsg;
   }
 
   const checkEmail = async (email: string): Promise<string> => {
@@ -57,6 +59,8 @@ const SignUp = (props: SignUpProps) => {
       errorMsg = 'Required';
     } else if (!reg.test(email)) {
       errorMsg = 'Not a valid email';
+    } else if (email.length > 50) {
+      errorMsg = 'Email too long';
     }
 
     return errorMsg;
@@ -69,6 +73,8 @@ const SignUp = (props: SignUpProps) => {
       errorMsg = 'Required';
     } else if (password.length < 9) {
       errorMsg = 'Minimum 9 characters';
+    } else if (password.length > 25) {
+      errorMsg = 'Password too long';
     }
 
     return errorMsg;
@@ -89,16 +95,16 @@ const SignUp = (props: SignUpProps) => {
   const handleSubmit = (event: React.FormEvent) => {
 
     const checkForm = async (): Promise<boolean> => {
-  
+
       const results = await Promise.all([
         checkEmail(email),
         checkFullName(fullName),
         checkConfirmPassword(confirmPassword),
         checkPassword(password)
       ]);
-      
+
       setTriggerCheckValue(true);
-      const result = results.every((value:string) => value.length === 0);
+      const result = results.every((value: string) => value.length === 0);
       setTriggerCheckValue(false);
 
       return result;
@@ -106,11 +112,11 @@ const SignUp = (props: SignUpProps) => {
 
     event.preventDefault();
 
-    checkForm().then((result:boolean) => {
+    checkForm().then((result: boolean) => {
 
       if (result) {
         signUpHandler(fullName, email, password, confirmPassword);
-      } 
+      }
 
     });
   }
@@ -118,62 +124,62 @@ const SignUp = (props: SignUpProps) => {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Card className={classes.card} hidden={ props.hidden } raised>
-          <CardHeader 
-            avatar={ <CreateIcon /> }
-            titleTypographyProps={{ variant:'h4' }}
+        <Card className={classes.card} hidden={props.hidden} raised>
+          <CardHeader
+            avatar={<CreateIcon />}
+            titleTypographyProps={{ variant: 'h4' }}
             title="SIGN UP"
           />
-          <form className={ classes.form }>
+          <form className={classes.form}>
             <CardContent>
-                <Grid container spacing={ 2 }>
-                  <Grid item xs={ 12 }>
-                    <StringFormInput 
-                      field="Full Name"
-                      value={ fullName }
-                      setValue={ setFullName }
-                      checkValue={ checkFullName }
-                      triggerCheckValue={ triggerCheckValue }
-                      classes={ classes.form_control }
-                    />
-                  </Grid>
-                  <Grid item xs={ 12 }>
-                    <StringFormInput 
-                      field="Email"
-                      value={ email }
-                      setValue={ setEmail }
-                      checkValue={ checkEmail }
-                      triggerCheckValue={ triggerCheckValue }
-                      classes={ classes.form_control }
-                    />
-                  </Grid>
-                  <Grid item xs={ 12 }>
-                    <StringFormInput 
-                      field="Password"
-                      value={ password }
-                      setValue={ setPassword }
-                      checkValue={ checkPassword }
-                      triggerCheckValue={ triggerCheckValue }
-                      type="password"
-                      classes={ classes.form_control }
-                    />
-                  </Grid>
-                  <Grid item xs={ 12 }>
-                    <StringFormInput 
-                      field="Confirm Password"
-                      value={ confirmPassword }
-                      setValue={ setConfirmPassword }
-                      checkValue={ checkConfirmPassword }
-                      triggerCheckValue={ triggerCheckValue }
-                      type="password"
-                      classes={ classes.form_control }
-                    />
-                  </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <StringFormInput
+                    field="Full Name"
+                    value={fullName}
+                    setValue={setFullName}
+                    checkValue={checkFullName}
+                    triggerCheckValue={triggerCheckValue}
+                    classes={classes.form_control}
+                  />
                 </Grid>
+                <Grid item xs={12}>
+                  <StringFormInput
+                    field="Email"
+                    value={email}
+                    setValue={setEmail}
+                    checkValue={checkEmail}
+                    triggerCheckValue={triggerCheckValue}
+                    classes={classes.form_control}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <StringFormInput
+                    field="Password"
+                    value={password}
+                    setValue={setPassword}
+                    checkValue={checkPassword}
+                    triggerCheckValue={triggerCheckValue}
+                    type="password"
+                    classes={classes.form_control}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <StringFormInput
+                    field="Confirm Password"
+                    value={confirmPassword}
+                    setValue={setConfirmPassword}
+                    checkValue={checkConfirmPassword}
+                    triggerCheckValue={triggerCheckValue}
+                    type="password"
+                    classes={classes.form_control}
+                  />
+                </Grid>
+              </Grid>
               <Typography variant="caption" display="block" gutterBottom>
-                Already have an account? 
+                Already have an account?
                 <Button size="small" color="secondary"
-                  onClick={ () => props.setShowSignUp(false) }
+                  onClick={() => props.setShowSignUp(false)}
                 >
                   Log In
                 </Button>
@@ -181,7 +187,7 @@ const SignUp = (props: SignUpProps) => {
             </CardContent>
             <CardActions>
               <Button size="medium" color="secondary" type="submit"
-                variant="outlined" onClick={ handleSubmit }
+                variant="outlined" onClick={handleSubmit}
               >
                 Sign Up
               </Button>

@@ -1,8 +1,8 @@
 import React from "react";
 import CustomAppBar from "../ui/customAppBar/CustomAppBar";
 import Home from "../../components/home/Home";
-import Topics from "../../components/topics/Topics";
-import TopicDetails from "../../components/topics/topic/details/TopicDetails";
+import Reklamas from "../reklamas/Reklamas";
+import ReklamaDetails from "../reklamas/reklama/details/ReklamaDetails";
 import ScrollToTop from "../../utils/ScrollToTop";
 import {
   BrowserRouter as Router,
@@ -13,6 +13,7 @@ import AdminPanel from '../adminPanel/AdminPanel';
 import AuthorizedRoute from "../../utils/AuthorizedRoute";
 import PanelUsers from "../adminPanel/options/PanelUsers";
 import PanelTopics from "../adminPanel/options/PanelTopics/PanelTopics";
+import ReklamaCreate from "../reklamas/reklama/create/ReklamaCreate";
 
 const AuthenticatedApp = () => {
 
@@ -25,11 +26,14 @@ const AuthenticatedApp = () => {
           <Route exact path="/">
             <Home />
           </Route>
-          <Route exact path="/topics">
-            <Topics />
+          <Route exact path={`/topics/:topicId/reklamas`}>
+            <Reklamas />
           </Route>
-          <Route exact path={`/topics/:topicId`}>
-            <TopicDetails />
+          <Route exact path="/reklamas/create">
+            <ReklamaCreate />
+          </Route>
+          <Route exact path={`/reklamas/:reklamaId`}>
+            <ReklamaDetails />
           </Route>
           <AuthorizedRoute exact path="/adminPanel" authorization="ADMIN">
             <AdminPanel />

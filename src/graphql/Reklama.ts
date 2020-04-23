@@ -1,46 +1,58 @@
 import { gql } from 'apollo-boost';
 
-export const TOPIC = gql`
-  query($id: Int!) {
-    topic(id: $id) {
-      title,
-      description
+export const CREATE_REKLAMA = gql`
+  mutation($reklamaDetails: ReklamaDetails!) {
+    createReklama(reklamaDetails: $reklamaDetails) {
+      id
     }
   }
 `;
 
-export const TOPICS = gql`
-  query {
-    topics {
+export const REKLAMAS = gql`
+  query($filter: ReklamaFilter, $order: SortOrder, $page: Int!, $perPage: Int!) {
+    reklamas(filter: $filter, order: $order, page: $page, perPage: $perPage) {
+      metadata {
+        page,
+        totalPages,
+        totalResults
+      },
+      reklamas {
+        id,
+        title,
+        content,
+        insertedAt,
+        images {
+          name,
+          image
+        },
+        user {
+          avatar
+        },
+        topic {
+          image,
+          imageName
+        }
+      }
+    }
+  }
+`;
+
+export const REKLAMA = gql`
+  query($id: Int!) {
+    reklama(id: $id) {
       id,
       title,
-      description
-      image
+      content,
+      insertedAt,
+      user {
+        avatar,
+        fullName
+      },
+      images {
+        id,
+        image,
+        name
+      }
     }
   }
 `;
-
-export const DELETE_TOPIC = gql`
-  mutation($id: Int!) {
-    deleteTopic(id: $id) {
-      id
-    }
-  }
-`;
-
-export const CREATE_TOPIC = gql`
-  mutation($topicDetails: TopicDetails!) {
-    createTopic(topicDetails: $topicDetails) {
-      id
-    }
-  }
-`;
-
-export const UPDATE_TOPIC = gql`
-  mutation($updateTopicDetails: UpdateTopicDetails!) {
-    updateTopic(updateTopicDetails: $updateTopicDetails) {
-      id
-    }
-  }
-`;
-

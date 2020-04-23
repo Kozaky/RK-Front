@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useStyles from './PanelTopicsStyles';
-import { TOPICS } from '../../../../graphql/Reklama';
+import { TOPICS } from '../../../../graphql/Topic';
 import Card from '@material-ui/core/Card';
 import DataTable, { Column } from '../../../ui/dataTable/DataTable';
 import TopAlert, { TopAlertProps } from '../../../ui/alerts/topAlert/TopAlert';
@@ -24,7 +24,7 @@ const PanelTopics = () => {
   const [topicId, setTopicId] = useState<string | null>(null);
 
   if (showAlert) {
-    setTimeout(() => setShowAlert(false), 1_500);
+    setTimeout(() => setShowAlert(false), 3_000);
   }
 
   // Functions 

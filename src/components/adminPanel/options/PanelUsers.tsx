@@ -21,7 +21,7 @@ const PanelUsers = () => {
   const [userId, setUserId] = useState<string | null>(null);
 
   if (showAlert) {
-    setTimeout(() => setShowAlert(false), 1_500);
+    setTimeout(() => setShowAlert(false), 3_000);
   }
 
   // Functions 

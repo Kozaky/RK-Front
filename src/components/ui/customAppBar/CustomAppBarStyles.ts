@@ -1,14 +1,14 @@
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
-export default makeStyles((theme: Theme) => 
+export default makeStyles((theme: Theme) =>
   createStyles({
-    grow: { 
+    grow: {
       flexGrow: 1
     },
     sectionDesktop: {
       display: 'none',
       [theme.breakpoints.up('md')]: {
-          display: 'flex',
+        display: 'flex',
       },
     },
     linkWithoutDecoration: {
@@ -21,8 +21,8 @@ export default makeStyles((theme: Theme) =>
       zIndex: theme.zIndex.drawer + 1,
       display: 'flex',
       [theme.breakpoints.up('md')]: {
-          display: 'none',
-      },
+        display: 'none',
+      }
     }
   })
 );
