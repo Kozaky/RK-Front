@@ -145,7 +145,7 @@ const Reklamas = () => {
         {reklamas && reklamas.length !== 0
           ? reklamas.map(reklama => (
             <Grid item className={classes.reklamasRoot} xs key={reklama.id}>
-              <Link to={`/reklamas/${reklama.id}`}>
+              <Link to={`/reklamas/${reklama.id}`} target="_blank">
                 <Reklama {...reklama} />
               </Link>
             </Grid>
