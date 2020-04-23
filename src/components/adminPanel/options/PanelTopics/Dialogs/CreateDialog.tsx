@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import useStyles from './DialogStyles';
 import { useAuth } from '../../../../../providers/authProvider/AuthProvider';
 import { useMutation } from '@apollo/react-hooks';
-import { CREATE_TOPIC } from '../../../../../graphql/Reklama';
+import { CREATE_TOPIC } from '../../../../../graphql/Topic';
 import { handleGeneralErrors } from '../../../../../utils/ErrorHandler';
 import { Dialog, DialogTitle, Divider, Button } from '@material-ui/core';
 import StringFormInput from '../../../../ui/stringFormInput/StringFormInput';
@@ -23,7 +23,6 @@ const CreateDialog = (props: CreateDialogProps) => {
   const classes = useStyles();
   const { updateCurrentUser } = useAuth()!;
 
-  console.log('createDialog');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [triggerValidation, setTriggerValidation] = useState(false);
@@ -36,14 +35,12 @@ const CreateDialog = (props: CreateDialogProps) => {
   const checkTitle = async (title: string): Promise<string> => {
     let msg = '';
 
-    console.log('check');
     if (title.length === 0) {
       msg = 'Required';
-    } else if (title.length > 255) {
+    } else if (title.length > 50) {
       msg = 'Title is too long';
     }
 
-    console.log(msg);
     return msg;
   }
 
@@ -52,7 +49,7 @@ const CreateDialog = (props: CreateDialogProps) => {
 
     if (description.length === 0) {
       msg = 'Required';
-    } else if (description.length > 255) {
+    } else if (description.length > 50) {
       msg = 'Description is too long';
     }
 

@@ -28,7 +28,6 @@ const StringFormInput = (props: StringFormInputProps) => {
   // Functions
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('handleChange');
     props.checkValue(e.currentTarget.value).then((errorMsg: string) => setErrorMsg(errorMsg));
     props.setValue(e.currentTarget.value);
     console.log(e.currentTarget.value);

@@ -7,7 +7,7 @@ export default makeStyles((theme: Theme) =>
       padding: 16,
       margin: 0,
     },
-    topicsRoot: {
+    reklamasRoot: {
       minWidth: 300,
       maxWidth: 350,
       textAlign: 'center',
@@ -18,7 +18,25 @@ export default makeStyles((theme: Theme) =>
         }
       }
     },
+    load: {
+      textAlign: 'center',
+      width: '100%',
+      marginTop: theme.spacing(6)
+    },
+    loader: {
+      textAlign: 'center',
+      width: '100%'
+    },
     drawer: {
+      textAlign: 'center',
+      '& div:nth-of-type(3)': {
+        width: 400
+      },
+      [theme.breakpoints.down('xs')]: {
+        '& div:nth-of-type(3)': {
+          width: '100%'
+        }
+      }
     },
     list: {
       width: 350,

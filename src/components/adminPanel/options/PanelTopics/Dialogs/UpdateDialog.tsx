@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useState, useRef, useEffect } from 're
 import useStyles from './DialogStyles';
 import { useAuth } from '../../../../../providers/authProvider/AuthProvider';
 import { useMutation, useQuery } from '@apollo/react-hooks';
-import { UPDATE_TOPIC, TOPIC } from '../../../../../graphql/Reklama';
+import { UPDATE_TOPIC, TOPIC } from '../../../../../graphql/Topic';
 import { handleGeneralErrors } from '../../../../../utils/ErrorHandler';
 import { Dialog, DialogTitle, Divider, Button } from '@material-ui/core';
 import StringFormInput from '../../../../ui/stringFormInput/StringFormInput';
