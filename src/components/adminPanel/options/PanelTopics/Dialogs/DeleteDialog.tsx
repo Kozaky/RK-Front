@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction } from 'react';
 import useStyles from './DialogStyles';
 import { useAuth } from '../../../../../providers/authProvider/AuthProvider';
 import { useMutation } from '@apollo/react-hooks';
-import { DELETE_TOPIC } from '../../../../../graphql/Reklama';
+import { DELETE_TOPIC } from '../../../../../graphql/Topic';
 import { handleGeneralErrors } from '../../../../../utils/ErrorHandler';
 import { Dialog, DialogTitle, Divider, List, ListItem, ListItemText } from '@material-ui/core';
 

@@ -11,9 +11,9 @@ export default makeStyles((theme: Theme) =>
       backgroundPosition: 'center',
       backgroundColor: 'black',
       padding: '16px',
-      height: 'calc(100% - 48px)',
+      minHeight: 'calc(100% - 48px)',
       [theme.breakpoints.up('sm')]: {
-        height: 'calc(100% - 64px)'
+        minHeight: 'calc(100% - 64px)'
       },
     },
     topics: {
