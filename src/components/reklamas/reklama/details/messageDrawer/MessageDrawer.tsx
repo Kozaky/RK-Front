@@ -112,7 +112,7 @@ const MessagesDrawer = ({ setShowAlert, setAlertText, ...rest }: MessagesDrawerP
         className={classes.gridMessages} ref={messagesGrid}>
         <Grid item xs>
           {data ? data.reklama.messages.map((message: any) => (
-            <Box key={message.id} display="flex" flexDirection={currentUser!.id == message.user.id ? 'row-reverse' : 'row'}>
+            <Box key={message.id} display="flex" flexDirection={currentUser!.id === message.user.id ? 'row-reverse' : 'row'}>
               <Card className={classes.message}>
                 <CardHeader
                   avatar={<Avatar aria-label="avatar" src={`data:image/png;base64,${message.user.avatar}`} />}

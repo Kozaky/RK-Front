@@ -5,9 +5,9 @@ import Reklamas from "../reklamas/Reklamas";
 import ReklamaDetails from "../reklamas/reklama/details/ReklamaDetails";
 import ScrollToTop from "../../utils/ScrollToTop";
 import {
-  BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  BrowserRouter
 } from "react-router-dom";
 import AdminPanel from '../adminPanel/AdminPanel';
 import AuthorizedRoute from "../../utils/AuthorizedRoute";
@@ -19,7 +19,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      <Router>
+      <BrowserRouter>
         <CustomAppBar />
         <ScrollToTop />
         <Switch>
@@ -48,7 +48,7 @@ const AuthenticatedApp = () => {
             <Home />
           </Route>
         </Switch>
-      </Router>
+      </BrowserRouter>
     </>
   );
 

@@ -49,6 +49,7 @@ const ReklamaDetails = () => {
 
   }, [error]);
 
+
   // Functions
 
   const handleErrors = (error: any, updateCurrentUser: any) => {
