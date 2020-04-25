@@ -193,14 +193,13 @@ const CustomAppBar = () => {
         <Toolbar>
           <Typography variant="h3" noWrap>
             Reklama
-                    </Typography>
+          </Typography>
           <div className={classes.grow} />
-
           <input id="avatarInput"
             type="file"
             ref={avatarInput}
             style={{ display: 'none' }}
-            accept="image/png;image/jpg;image/jpeg"
+            accept=".png,.jpg,.jpeg"
             onChange={uploadAvatarHanlder}
           />
           {currentUser !== null ? sectionDesktop : null}
