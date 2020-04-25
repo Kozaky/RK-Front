@@ -5,7 +5,7 @@ import useStyles from './FilterDrawerStyles';
 
 
 type FilterDrawerProps = {
-  setFilters: React.Dispatch<React.SetStateAction<{ [index: string]: any } | undefined>>,
+  setFilters: (filters: { [index: string]: any } | undefined) => void,
   filters: Array<Column['filter']>
 } & DrawerProps
 

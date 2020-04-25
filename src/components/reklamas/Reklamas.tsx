@@ -6,8 +6,8 @@ import Fab from '@material-ui/core/Fab';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import LoopIcon from '@material-ui/icons/Loop';
-import { Link, useParams } from "react-router-dom";
-import { useQuery } from '@apollo/react-hooks';
+import { Link, useParams, useHistory } from "react-router-dom";
+import { useQuery } from 'react-apollo';
 import { REKLAMAS } from '../../graphql/Reklama';
 import { handleGeneralErrors } from '../../utils/ErrorHandler';
 import TopAlert from '../ui/alerts/topAlert/TopAlert';
@@ -15,22 +15,49 @@ import { useAuth } from '../../providers/authProvider/AuthProvider';
 import FilterDrawer from '../ui/filterDrawer/FilterDrawer';
 import { Column } from '../ui/dataTable/DataTable';
 
+const getReklamaPage = () => {
+  let reklamaPage = {
+    currentPage: 0,
+    totalPages: -1,
+    rowsPerPage: 3,
+    reklamas: null,
+    filters: null
+  };
+
+  if (hasPreviousState()) {
+    const previousReklamaPage = window.sessionStorage.getItem('reklamaPage');
+    reklamaPage = JSON.parse(previousReklamaPage!);
+  }
+
+  return reklamaPage;
+}
+
+const hasPreviousState = () => {
+  return window.sessionStorage.getItem('reklamaPage') !== null
+    && sessionStorage.getItem('scrollPosition');
+}
+
+type ReklamaPage = {
+  currentPage: number,
+  totalPages: number,
+  rowsPerPage: number,
+  reklamas: (ReklamaProps & { id: number })[] | null,
+  filters: { [index: string]: any } | undefined | null
+}
+
 const Reklamas = () => {
 
   // Services
 
   const classes = useStyles();
   const { updateCurrentUser } = useAuth()!;
-
+  const history = useHistory();
   const { topicId } = useParams();
 
-  const [totalPages, setTotalPages] = useState(-1);
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
-  const [filters, setFilters] = useState<{ [index: string]: any } | undefined>(undefined);
-  const [reklamas, setReklamas] = useState<(ReklamaProps & { id: number })[] | null>(null);
-  const loadDemanded = useRef(true);
-  const filerOrderDemanded = useRef(false);
+  const [reklamaPage, setReklamaPage] = useState<ReklamaPage>(getReklamaPage());
+  const reklamasGrid = useRef<HTMLDivElement>(null);
+  const loadDemanded = useRef(!hasPreviousState());
+  const executeFilter = useRef(false);
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -38,19 +65,40 @@ const Reklamas = () => {
 
   const { loading, error, data } = useQuery(REKLAMAS, {
     variables: {
-      page: page + 1,
-      perPage: rowsPerPage,
+      page: reklamaPage.currentPage + 1,
+      perPage: reklamaPage.rowsPerPage,
       filter: {
         topicId: Number.parseInt(topicId!),
-        ...filters
+        ...reklamaPage.filters
       },
       order: {
         order_desc: "inserted_at"
       }
     },
-    skip: !loadDemanded && !filerOrderDemanded,
+    skip: !loadDemanded.current && !executeFilter.current,
     fetchPolicy: 'no-cache'
   });
+
+  useEffect(() => {
+
+    const scrollPosition = sessionStorage.getItem('scrollPosition');
+    if (scrollPosition !== null) {
+      reklamasGrid.current!.scrollTo(0, Number.parseInt(scrollPosition));
+    }
+
+  }, []);
+
+  useEffect(() => {
+
+    return () => {
+      if (history.location.pathname === '/reklamas/create'
+        || history.location.pathname === '/') {
+        window.sessionStorage.removeItem('reklamaPage');
+        window.sessionStorage.removeItem('scrollPosition');
+      }
+    }
+
+  }, [history]);
 
   useEffect(() => {
 
@@ -63,24 +111,26 @@ const Reklamas = () => {
 
   useEffect(() => {
 
-    filerOrderDemanded.current = true;
-    setPage(0);
-    setTotalPages(-1);
-
-  }, [filters]);
-
-  useEffect(() => {
-
-    if (reklamas && reklamas.length === 0) {
+    if (reklamaPage.reklamas && reklamaPage.reklamas.length === 0) {
       setShowAlert(true);
       setAlertText("No Reklamas Found");
     }
 
-  }, [reklamas]);
+  }, [reklamaPage.reklamas]);
+
+  useEffect(() => {
+
+    if (reklamaPage.filters || reklamaPage.filters === undefined) {
+      executeFilter.current = true;
+      setReklamaPage(reklamaPage => ({ ...reklamaPage, currentPage: 0, totalPages: -1 }));
+    }
+
+  }, [reklamaPage.filters]);
 
   if (showAlert) {
     setTimeout(() => setShowAlert(false), 3_000);
   }
+
 
   // Functions 
 
@@ -100,7 +150,11 @@ const Reklamas = () => {
 
   const loadNextPage = () => {
     loadDemanded.current = true;
-    setPage(page + 1);
+    setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
+  }
+
+  const setFilters = (filters: ReklamaPage['filters']) => {
+    setReklamaPage({ ...reklamaPage, filters: filters });
   }
 
   const toggleDrawer = () => setIsOpenDrawer(!isOpenDrawer);
@@ -111,21 +165,41 @@ const Reklamas = () => {
       loadDemanded.current = false;
 
       let updatedReklamas: (ReklamaProps & { id: number })[] = [];
-      if (reklamas) {
-        updatedReklamas = [...reklamas];
+      if (reklamaPage.reklamas) {
+        updatedReklamas = [...reklamaPage.reklamas];
       }
 
       updatedReklamas.push(...parseData(data));
 
-      setReklamas(updatedReklamas);
-      setTotalPages(data.reklamas.metadata.totalPages);
+      setReklamaPage({
+        ...reklamaPage,
+        reklamas: updatedReklamas,
+        totalPages: data.reklamas.metadata.totalPages
+      });
 
-    } else if (filerOrderDemanded.current) {
-      filerOrderDemanded.current = false;
+    } else if (executeFilter.current) {
+      executeFilter.current = false;
 
-      setReklamas(parseData(data));
-      setTotalPages(data.reklamas.metadata.totalPages);
+      setReklamaPage({
+        ...reklamaPage,
+        reklamas: parseData(data),
+        totalPages: data.reklamas.metadata.totalPages
+      });
     }
+  }
+
+  const saveState = () => {
+
+    let copyReklamaPage = { ...reklamaPage };
+
+    // if filter is blank, 
+    // we change it to null to avoid executing the query when we rerender
+    if (copyReklamaPage.filters === undefined) {
+      copyReklamaPage = { ...copyReklamaPage, filters: null }
+    }
+
+    window.sessionStorage.setItem('reklamaPage', JSON.stringify(copyReklamaPage));
+    window.sessionStorage.setItem('scrollPosition', reklamasGrid.current!.scrollTop.toString());
   }
 
   const filterInputs: Column['filter'][] = [
@@ -141,18 +215,18 @@ const Reklamas = () => {
         : null}
       {showAlert ? <TopAlert msg={alertText} type="error" /> : null}
       <Grid container justify="center" alignItems="stretch"
-        spacing={3} className={classes.root}>
-        {reklamas && reklamas.length !== 0
-          ? reklamas.map(reklama => (
+        spacing={3} className={classes.root} ref={reklamasGrid}>
+        {reklamaPage.reklamas && reklamaPage.reklamas.length !== 0
+          ? reklamaPage.reklamas.map(reklama => (
             <Grid item className={classes.reklamasRoot} xs key={reklama.id}>
-              <Link to={`/reklamas/${reklama.id}`} target="_blank">
+              <Link to={`/reklamas/${reklama.id}`} onClick={saveState}>
                 <Reklama {...reklama} />
               </Link>
             </Grid>
           ))
           : null
         }
-        {(totalPages - 1) > page
+        {(reklamaPage.totalPages - 1) > reklamaPage.currentPage
           ?
           <Box component="div" className={classes.loader}>
             <Fab aria-label="load" onClick={loadNextPage}>
