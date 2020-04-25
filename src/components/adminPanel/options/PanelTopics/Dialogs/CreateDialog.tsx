@@ -156,7 +156,7 @@ const CreateDialog = (props: CreateDialogProps) => {
         type="file"
         ref={imageInput}
         style={{ display: 'none' }}
-        accept="image/png;image/jpg;image/jpeg"
+        accept=".png,.jpg,.jpeg"
       />
       <Button
         variant="contained"

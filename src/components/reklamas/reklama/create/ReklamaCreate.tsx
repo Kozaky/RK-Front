@@ -253,7 +253,7 @@ const ReklamaCreate = () => {
                 ref={imageInput}
                 style={{ display: 'none' }}
                 onChange={handleImagesChange}
-                accept="image/png;image/jpg;image/jpeg"
+                accept=".png,.jpg,.jpeg"
                 multiple
               />
               {images !== null && images!.length !== 0
