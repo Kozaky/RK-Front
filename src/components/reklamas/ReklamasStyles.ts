@@ -57,6 +57,9 @@ export default makeStyles((theme: Theme) =>
       left: theme.spacing(2),
       height: '70px !important',
       width: '70px !important',
+    },
+    linkDiv: {
+      cursor: "pointer"
     }
   })
 );

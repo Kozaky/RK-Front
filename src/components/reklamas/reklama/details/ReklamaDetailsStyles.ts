@@ -27,6 +27,13 @@ export default makeStyles((theme: Theme) =>
           width: '100%'
         }
       }
+    },
+    backButton: {
+      position: 'fixed',
+      bottom: theme.spacing(2),
+      left: theme.spacing(2),
+      height: '70px !important',
+      width: '70px !important',
     }
   })
 );
