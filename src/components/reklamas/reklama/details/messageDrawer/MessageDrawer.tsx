@@ -11,12 +11,12 @@ import { handleGeneralErrors } from '../../../../../utils/ErrorHandler';
 type MessagesDrawerProps = {
   setShowAlert: Dispatch<SetStateAction<boolean>>,
   setAlertText: Dispatch<SetStateAction<string>>,
+  reklamaId: number,
 } & DrawerProps
 
-const MessagesDrawer = ({ setShowAlert, setAlertText, ...rest }: MessagesDrawerProps) => {
+const MessagesDrawer = ({ setShowAlert, setAlertText, reklamaId, ...rest }: MessagesDrawerProps) => {
 
   const classes = useStyles();
-  const { reklamaId } = useParams();
   const { updateCurrentUser, currentUser } = useAuth()!;
 
   const doScrollDown = useRef<Boolean>(true);
@@ -28,7 +28,7 @@ const MessagesDrawer = ({ setShowAlert, setAlertText, ...rest }: MessagesDrawerP
   const [createMessage] = useMutation(CREATE_MESSAGE);
   const { loading, error, data, refetch } = useQuery(MESSAGES, {
     variables: {
-      id: Number.parseInt(reklamaId!)
+      id: reklamaId
     }
   });
 
@@ -73,7 +73,7 @@ const MessagesDrawer = ({ setShowAlert, setAlertText, ...rest }: MessagesDrawerP
       createMessage({
         variables: {
           messageDetails: {
-            reklamaId: Number.parseInt(reklamaId!),
+            reklamaId: reklamaId,
             content: message
           }
         }

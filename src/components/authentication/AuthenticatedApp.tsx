@@ -1,8 +1,6 @@
 import React from "react";
 import CustomAppBar from "../ui/customAppBar/CustomAppBar";
 import Home from "../../components/home/Home";
-import Reklamas from "../reklamas/Reklamas";
-import ReklamaDetails from "../reklamas/reklama/details/ReklamaDetails";
 import ScrollToTop from "../../utils/ScrollToTop";
 import {
   Switch,
@@ -14,6 +12,7 @@ import AuthorizedRoute from "../../utils/AuthorizedRoute";
 import PanelUsers from "../adminPanel/options/PanelUsers";
 import PanelTopics from "../adminPanel/options/PanelTopics/PanelTopics";
 import ReklamaCreate from "../reklamas/reklama/create/ReklamaCreate";
+import ReklamasView from "../reklamas/ReklamasView";
 
 const AuthenticatedApp = () => {
 
@@ -27,13 +26,10 @@ const AuthenticatedApp = () => {
             <Home />
           </Route>
           <Route exact path={`/topics/:topicId/reklamas`}>
-            <Reklamas />
+            <ReklamasView />
           </Route>
           <Route exact path="/reklamas/create">
             <ReklamaCreate />
-          </Route>
-          <Route exact path={`/reklamas/:reklamaId`}>
-            <ReklamaDetails />
           </Route>
           <AuthorizedRoute exact path="/adminPanel" authorization="ADMIN">
             <AdminPanel />

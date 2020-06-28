@@ -28,7 +28,7 @@ const LogIn = (props: LogInProps) => {
   const { logInHandler } = useAuth()!;
 
   // State
-  
+
   const [email, setEmail] = useState('');
   const [emailErrorMsg, setEmailErrorMsg] = useState('');
   const [showEmailErrorMsg, setShowEmailErrorMsg] = useState(false);
@@ -51,7 +51,7 @@ const LogIn = (props: LogInProps) => {
     return errorMsg;
   }
 
-  const checkPassword = async(password: string): Promise<boolean> => password.length !== 0;
+  const checkPassword = async (password: string): Promise<boolean> => password.length !== 0;
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     checkEmail(event.currentTarget.value).then(msg => {
@@ -66,12 +66,12 @@ const LogIn = (props: LogInProps) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     const checkForm = async (): Promise<boolean> => {
-  
+
       const results = await Promise.all([
         checkEmail(email),
         checkPassword(password)
       ]);
-      
+
       const isValidEmail = results[0] === '';
       if (!isValidEmail) {
         setShowEmailErrorMsg(true);
@@ -98,51 +98,51 @@ const LogIn = (props: LogInProps) => {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Card className={classes.card} hidden={ props.hidden } raised>
-          <CardHeader 
-            avatar={ <LockIcon /> }
-            titleTypographyProps={{ variant:'h4' }}
+        <Card className={classes.card} hidden={props.hidden} raised>
+          <CardHeader
+            avatar={<LockIcon />}
+            titleTypographyProps={{ variant: 'h4' }}
             title="LOG IN"
           />
-          <form className={classes.form}>
+          <form>
             <CardContent>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <TextField id="emailInput" label="Email" variant="filled"
-                      className={classes.input}
-                      value={email} onChange={handleEmailChange}/>
-                    <FormHelperText id="email-error-text" 
-                      hidden={!showEmailErrorMsg}
-                      className={classes.text}
-                    >
-                      {emailErrorMsg}
-                    </FormHelperText>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField id="passwordInput" label="Password" variant="filled" 
-                      type="password" className={classes.input}
-                      value={password} onChange={handlePasswordChange}/>
-                    <FormHelperText id="email-error-text" 
-                      hidden={!showPasswordErrorMsg}
-                      className={classes.text}
-                    >
-                      Please introduce your password
-                    </FormHelperText>
-                  </Grid>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TextField id="emailInput" label="Email" variant="filled"
+                    className={classes.input}
+                    value={email} onChange={handleEmailChange} />
+                  <FormHelperText id="email-error-text"
+                    hidden={!showEmailErrorMsg}
+                    className={classes.text}
+                  >
+                    {emailErrorMsg}
+                  </FormHelperText>
                 </Grid>
+                <Grid item xs={12}>
+                  <TextField id="passwordInput" label="Password" variant="filled"
+                    type="password" className={classes.input}
+                    value={password} onChange={handlePasswordChange} />
+                  <FormHelperText id="email-error-text"
+                    hidden={!showPasswordErrorMsg}
+                    className={classes.text}
+                  >
+                    Please introduce your password
+                    </FormHelperText>
+                </Grid>
+              </Grid>
               <Typography variant="caption" display="block" gutterBottom>
-                Still do not have an account? 
+                Still do not have an account?
                 <Button size="small" color="secondary"
                   onClick={() => props.setShowSignUp(true)}>
-                    Sign Up
+                  Sign Up
                 </Button>
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="medium" color="secondary" variant="outlined" 
-                type="submit" onClick={handleSubmit} 
+              <Button size="medium" color="secondary" variant="outlined"
+                type="submit" onClick={handleSubmit}
               >
-                  Log In
+                Log In
               </Button>
             </CardActions>
           </form>

@@ -130,7 +130,7 @@ const SignUp = (props: SignUpProps) => {
             titleTypographyProps={{ variant: 'h4' }}
             title="SIGN UP"
           />
-          <form className={classes.form}>
+          <form>
             <CardContent>
               <Grid container spacing={2}>
                 <Grid item xs={12}>

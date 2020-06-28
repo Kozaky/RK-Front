@@ -7,9 +7,9 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { useParams } from 'react-router-dom';
 import ShareIcon from '@material-ui/icons/Share';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import { useHistory } from "react-router-dom";
 import Chat from '@material-ui/icons/Chat';
 import { useQuery } from '@apollo/react-hooks';
 import { REKLAMA } from '../../../../graphql/Reklama';
@@ -20,13 +20,19 @@ import { Box } from '@material-ui/core';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from 'react-responsive-carousel';
 import MessagesDrawer from './messageDrawer/MessageDrawer';
+import Fab from '@material-ui/core/Fab';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
-const ReklamaDetails = () => {
+type ReklamaDetailsProps = {
+  reklamaId: number;
+  setShowReklamaDetails: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const ReklamaDetails = ({ reklamaId, setShowReklamaDetails }: ReklamaDetailsProps) => {
 
   // Services
 
   const classes = useStyles();
-  const { reklamaId } = useParams();
   const { updateCurrentUser } = useAuth()!;
 
   const [showAlert, setShowAlert] = useState(false);
@@ -35,7 +41,7 @@ const ReklamaDetails = () => {
 
   const { loading, error, data } = useQuery(REKLAMA, {
     variables: {
-      id: Number.parseInt(reklamaId!)
+      id: reklamaId
     }
   });
 
@@ -49,6 +55,9 @@ const ReklamaDetails = () => {
 
   }, [error]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Functions
 
@@ -121,11 +130,15 @@ const ReklamaDetails = () => {
             onClose={toggleDrawer}
             setShowAlert={setShowAlert}
             setAlertText={setAlertText}
+            reklamaId={reklamaId}
             className={classes.drawer}
           />
         </Card>
         : null
       }
+      <Fab aria-label="back" color="secondary" className={classes.backButton} onClick={(e) => setShowReklamaDetails(false)}>
+        <NavigateBeforeIcon />
+      </Fab>
     </>
   );
 }
