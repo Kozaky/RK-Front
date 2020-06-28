@@ -24,17 +24,7 @@ const getReklamaPage = () => {
     filters: null
   };
 
-  if (hasPreviousState()) {
-    const previousReklamaPage = window.sessionStorage.getItem('reklamaPage');
-    reklamaPage = JSON.parse(previousReklamaPage!);
-  }
-
   return reklamaPage;
-}
-
-const hasPreviousState = () => {
-  return window.sessionStorage.getItem('reklamaPage') !== null
-    && sessionStorage.getItem('scrollPosition');
 }
 
 type ReklamaPage = {
@@ -45,18 +35,23 @@ type ReklamaPage = {
   filters: { [index: string]: any } | undefined | null
 }
 
-const Reklamas = () => {
+type ReklamasProps = {
+  setReklamaId: React.Dispatch<React.SetStateAction<number | null>>;
+  setShowReklamaDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  hidden: boolean;
+};
+
+const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps) => {
 
   // Services
 
   const classes = useStyles();
   const { updateCurrentUser } = useAuth()!;
-  const history = useHistory();
+  const [scrollHeight, setScrollHeight] = useState(0);
   const { topicId } = useParams();
 
   const [reklamaPage, setReklamaPage] = useState<ReklamaPage>(getReklamaPage());
-  const reklamasGrid = useRef<HTMLDivElement>(null);
-  const loadDemanded = useRef(!hasPreviousState());
+  const loadDemanded = useRef(true);
   const executeFilter = useRef(false);
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
@@ -81,24 +76,11 @@ const Reklamas = () => {
 
   useEffect(() => {
 
-    const scrollPosition = sessionStorage.getItem('scrollPosition');
-    if (scrollPosition !== null) {
-      reklamasGrid.current!.scrollTo(0, Number.parseInt(scrollPosition));
+    if (!hidden) {
+      window.scrollTo(0, scrollHeight);
     }
 
-  }, []);
-
-  useEffect(() => {
-
-    return () => {
-      if (history.location.pathname === '/reklamas/create'
-        || history.location.pathname === '/') {
-        window.sessionStorage.removeItem('reklamaPage');
-        window.sessionStorage.removeItem('scrollPosition');
-      }
-    }
-
-  }, [history]);
+  }, [hidden]);
 
   useEffect(() => {
 
@@ -137,7 +119,7 @@ const Reklamas = () => {
   const parseData = (data: any) => {
     return data.reklamas.reklamas.map((reklama: any) => (
       {
-        id: reklama.id,
+        id: Number.parseInt(reklama.id),
         header: reklama.title,
         subheader: new Date(reklama.insertedAt).toLocaleString(),
         image: reklama.images[0] ? reklama.images[0].image : reklama.topic.image,
@@ -188,18 +170,10 @@ const Reklamas = () => {
     }
   }
 
-  const saveState = () => {
-
-    let copyReklamaPage = { ...reklamaPage };
-
-    // if filter is blank, 
-    // we change it to null to avoid executing the query when we rerender
-    if (copyReklamaPage.filters === undefined) {
-      copyReklamaPage = { ...copyReklamaPage, filters: null }
-    }
-
-    window.sessionStorage.setItem('reklamaPage', JSON.stringify(copyReklamaPage));
-    window.sessionStorage.setItem('scrollPosition', reklamasGrid.current!.scrollTop.toString());
+  const showDetails = (reklamaId: number) => {
+    setScrollHeight(window.pageYOffset);
+    setShowReklamaDetails(true);
+    setReklamaId(reklamaId);
   }
 
   const filterInputs: Column['filter'][] = [
@@ -207,7 +181,7 @@ const Reklamas = () => {
   ];
 
   return (
-    <>
+    <Box hidden={hidden}>
       {loading
         ? <Box component="div" className={classes.load}>
           <CircularProgress color="secondary" size="2em" />
@@ -215,13 +189,13 @@ const Reklamas = () => {
         : null}
       {showAlert ? <TopAlert msg={alertText} type="error" /> : null}
       <Grid container justify="center" alignItems="stretch"
-        spacing={3} className={classes.root} ref={reklamasGrid}>
+        spacing={3} className={classes.root}>
         {reklamaPage.reklamas && reklamaPage.reklamas.length !== 0
           ? reklamaPage.reklamas.map(reklama => (
             <Grid item className={classes.reklamasRoot} xs key={reklama.id}>
-              <Link to={`/reklamas/${reklama.id}`} onClick={saveState}>
+              <div onClick={(e) => showDetails(reklama.id)} className={classes.linkDiv}>
                 <Reklama {...reklama} />
-              </Link>
+              </div>
             </Grid>
           ))
           : null
@@ -250,7 +224,7 @@ const Reklamas = () => {
           <AddIcon />
         </Fab>
       </Link>
-    </>
+    </Box >
   );
 }
 
