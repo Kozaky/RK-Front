@@ -23,7 +23,12 @@ const Home = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('');
 
-  const { loading, error, data } = useQuery(TOPICS);
+  const { loading, error, data } = useQuery(TOPICS, {
+    variables: {
+      page: 1,
+      perPage: 100
+    }
+  });
 
   useEffect(() => {
 
@@ -41,7 +46,7 @@ const Home = () => {
     let topics = null;
 
     if (data) {
-      topics = data.topics.map((topic: any) => (
+      topics = data.topics.topics.map((topic: any) => (
         <Grid item className={classes.topicRoot} key={topic.id}>
           <Link to={`/topics/${topic.id}/reklamas`}>
             <ButtonBase

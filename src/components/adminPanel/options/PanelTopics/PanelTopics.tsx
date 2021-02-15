@@ -33,9 +33,9 @@ const PanelTopics = () => {
     metadata: {
       page: 1,
       totalPages: 1,
-      totalResults: data.topics.length
+      totalResults: data.topics.topics.length
     },
-    data: data.topics.map((topic: any) => {
+    data: data.topics.topics.map((topic: any) => {
       return {
         id: topic.id,
         title: topic.title,

@@ -14,12 +14,13 @@ import TopAlert from '../ui/alerts/topAlert/TopAlert';
 import { useAuth } from '../../providers/authProvider/AuthProvider';
 import FilterDrawer from '../ui/filterDrawer/FilterDrawer';
 import { Column } from '../ui/dataTable/DataTable';
+import { UIEventHandler } from 'react';
 
 const getReklamaPage = () => {
   let reklamaPage = {
     currentPage: 0,
     totalPages: -1,
-    rowsPerPage: 3,
+    rowsPerPage: 12,
     reklamas: null,
     filters: null
   };
@@ -109,6 +110,22 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   }, [reklamaPage.filters]);
 
+  useEffect(() => {
+    const handleScroll = (e: Event) => {
+      const element = e.target as HTMLDocument;
+      const bottomReached = element.scrollingElement!.scrollHeight - element.scrollingElement!.scrollTop === element.scrollingElement!.clientHeight;
+      if (bottomReached) {
+        loadNextPage();
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+
+    return function cleanup() {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  });
+
   if (showAlert) {
     setTimeout(() => setShowAlert(false), 3_000);
   }
@@ -131,8 +148,10 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   }
 
   const loadNextPage = () => {
-    loadDemanded.current = true;
-    setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
+    if (reklamaPage.currentPage !== reklamaPage.totalPages - 1) {
+      loadDemanded.current = true;
+      setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
+    }
   }
 
   const setFilters = (filters: ReklamaPage['filters']) => {
@@ -182,11 +201,6 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   return (
     <Box hidden={hidden}>
-      {loading
-        ? <Box component="div" className={classes.load}>
-          <CircularProgress color="secondary" size="2em" />
-        </Box>
-        : null}
       {showAlert ? <TopAlert msg={alertText} type="error" /> : null}
       <Grid container justify="center" alignItems="stretch"
         spacing={3} className={classes.root}>
@@ -200,12 +214,9 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
           ))
           : null
         }
-        {(reklamaPage.totalPages - 1) > reklamaPage.currentPage
-          ?
-          <Box component="div" className={classes.loader}>
-            <Fab aria-label="load" onClick={loadNextPage}>
-              <LoopIcon color="secondary" />
-            </Fab>
+        {loading
+          ? <Box component="div" className={classes.load}>
+            <CircularProgress color="secondary" size="2em" />
           </Box>
           : null}
       </Grid>
