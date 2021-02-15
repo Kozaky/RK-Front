@@ -133,6 +133,9 @@ const AuthProvider = ({ children }: Props) => {
       case 'GraphQL error: not_found':
         message = 'Email not registered';
         break;
+      case 'GraphQL error: invalid password':
+        message = 'Invalid password';
+        break;
       default:
         message = handleGeneralErrors(error, updateCurrentUser);
         break;
