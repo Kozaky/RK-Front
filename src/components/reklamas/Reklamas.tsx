@@ -5,16 +5,15 @@ import { Grid, Box, CircularProgress } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
-import LoopIcon from '@material-ui/icons/Loop';
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useQuery } from 'react-apollo';
-import { REKLAMAS } from '../../graphql/Reklama';
+import { REKLAMAS, REKLAMAS_IMAGES } from '../../graphql/Reklama';
+import { TOPIC_IMAGE } from '../../graphql/Topic';
 import { handleGeneralErrors } from '../../utils/ErrorHandler';
 import TopAlert from '../ui/alerts/topAlert/TopAlert';
 import { useAuth } from '../../providers/authProvider/AuthProvider';
 import FilterDrawer from '../ui/filterDrawer/FilterDrawer';
 import { Column } from '../ui/dataTable/DataTable';
-import { UIEventHandler } from 'react';
 
 const getReklamaPage = () => {
   let reklamaPage = {
@@ -42,6 +41,10 @@ type ReklamasProps = {
   hidden: boolean;
 };
 
+type ReklamaParamTypes = {
+  topicId: string
+}
+
 const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps) => {
 
   // Services
@@ -49,15 +52,38 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const classes = useStyles();
   const { updateCurrentUser } = useAuth()!;
   const [scrollHeight, setScrollHeight] = useState(0);
-  const { topicId } = useParams();
+  const { topicId } = useParams<ReklamaParamTypes>();
 
   const [reklamaPage, setReklamaPage] = useState<ReklamaPage>(getReklamaPage());
   const loadDemanded = useRef(true);
   const executeFilter = useRef(false);
+  const loadImageDemanded = useRef(true);
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('');
+
+  const { error: topicQueryError, data: topicQueryData } = useQuery(TOPIC_IMAGE, {
+    variables: {
+      id: Number.parseInt(topicId!)
+    }
+  });
+
+  const { error: reklamaImageQueryError, data: reklamaImageQueryData } = useQuery(REKLAMAS_IMAGES, {
+    variables: {
+      page: reklamaPage.currentPage + 1,
+      perPage: reklamaPage.rowsPerPage,
+      filter: {
+        topicId: Number.parseInt(topicId!),
+        ...reklamaPage.filters
+      },
+      order: {
+        order_desc: "inserted_at"
+      }
+    },
+    skip: !loadImageDemanded.current,
+    fetchPolicy: 'no-cache'
+  });
 
   const { loading, error, data } = useQuery(REKLAMAS, {
     variables: {
@@ -94,17 +120,40 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   useEffect(() => {
 
+    if (topicQueryError) {
+      setShowAlert(true);
+      setAlertText(handleGeneralErrors(topicQueryError, updateCurrentUser));
+    }
+
+  }, [topicQueryError]);
+
+  useEffect(() => {
+
+    if (reklamaImageQueryError) {
+      setShowAlert(true);
+      setAlertText(handleGeneralErrors(reklamaImageQueryError, updateCurrentUser));
+    }
+
+  }, [reklamaImageQueryError]);
+
+  useEffect(() => {
+
     if (reklamaPage.reklamas && reklamaPage.reklamas.length === 0) {
       setShowAlert(true);
       setAlertText("No Reklamas Found");
+    } else if (reklamaPage.reklamas && reklamaImageQueryData) {
+      loadImages();
+    } else if (reklamaPage.reklamas && topicQueryData && !isImageLoaded()) {
+      loadTopicImage();
     }
 
-  }, [reklamaPage.reklamas]);
+  }, [reklamaPage.reklamas, topicQueryData, reklamaImageQueryData]);
 
   useEffect(() => {
 
     if (reklamaPage.filters || reklamaPage.filters === undefined) {
       executeFilter.current = true;
+      loadImageDemanded.current = true;
       setReklamaPage(reklamaPage => ({ ...reklamaPage, currentPage: 0, totalPages: -1 }));
     }
 
@@ -139,8 +188,8 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         id: Number.parseInt(reklama.id),
         header: reklama.title,
         subheader: new Date(reklama.insertedAt).toLocaleString(),
-        image: reklama.images[0] ? reklama.images[0].image : reklama.topic.image,
-        imageTitle: reklama.images[0] ? reklama.images[0].name : reklama.topic.imageName,
+        image: null,
+        imageName: null,
         shortDescription: reklama.content.substring(0, 50),
         numLikes: 100
       }
@@ -150,6 +199,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const loadNextPage = () => {
     if (reklamaPage.currentPage !== reklamaPage.totalPages - 1) {
       loadDemanded.current = true;
+      loadImageDemanded.current = true;
       setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
     }
   }
@@ -159,6 +209,46 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   }
 
   const toggleDrawer = () => setIsOpenDrawer(!isOpenDrawer);
+
+  const loadTopicImage = () => {
+
+    let updatedReklamas = [...reklamaPage.reklamas!].map((reklama: ReklamaProps & { id: number }) => (
+      {
+        ...reklama,
+        image: topicQueryData.topic.image,
+        imageTitle: topicQueryData.topic.imageName,
+      }
+    ));
+
+    setReklamaPage({
+      ...reklamaPage,
+      reklamas: updatedReklamas
+    });
+  };
+
+  const loadImages = () => {
+    loadImageDemanded.current = false;
+
+    let updatedReklamas = [...reklamaPage.reklamas!].map((reklama: ReklamaProps & { id: number }) => {
+      let reklamaImage = reklamaImageQueryData.reklamas.reklamas.find((reklamas: any) => reklamas.id == reklama.id);
+
+      let updatedReklama = { ...reklama };
+      if (reklamaImage && reklamaImage.images.length !== 0) {
+        updatedReklama.image = reklamaImage.images[0].image;
+        updatedReklama.imageTitle = reklamaImage.images[0].imageName;
+      }
+
+      return updatedReklama;
+    });
+
+    setReklamaPage({
+      ...reklamaPage,
+      reklamas: updatedReklamas
+    });
+  };
+
+  const isImageLoaded = () =>
+    [...reklamaPage.reklamas!].every((reklama: ReklamaProps & { id: number }) => reklama.image !== null);
 
   if (data && !loading) {
 

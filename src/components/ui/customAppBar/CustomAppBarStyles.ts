@@ -23,6 +23,9 @@ export default makeStyles((theme: Theme) =>
       [theme.breakpoints.up('md')]: {
         display: 'none',
       }
+    },
+    logo: {
+      color: 'white'
     }
   })
 );
