@@ -86,7 +86,7 @@ const CustomAppBar = () => {
       <RouterLink to="/adminPanel" className={classes.linkWithoutDecoration}>
         <Typography color="secondary" noWrap>
           Admin. Panel
-          </Typography>
+        </Typography>
       </RouterLink>
     </MenuItem>
   );
@@ -191,9 +191,11 @@ const CustomAppBar = () => {
     <div className={classes.grow}>
       <AppBar position="static" color="secondary">
         <Toolbar>
-          <Typography variant="h3" noWrap>
-            Reklama
-          </Typography>
+          <RouterLink to="/" className={classes.linkWithoutDecoration}>
+            <Typography variant="h3" className={classes.logo} noWrap>
+              Reklama
+            </Typography>
+          </RouterLink>
           <div className={classes.grow} />
           <input id="avatarInput"
             type="file"

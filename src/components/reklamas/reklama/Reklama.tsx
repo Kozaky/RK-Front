@@ -30,7 +30,6 @@ const Reklama = (props: ReklamaProps) => {
     <>
       <Card className={classes.root}>
         <CardHeader
-          avatar={<Avatar aria-label="avatar" src={`data:image/png;base64,${props.avatar}`} />}
           title={props.header}
           subheader={props.subheader}
         />

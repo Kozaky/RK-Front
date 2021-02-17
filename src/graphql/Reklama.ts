@@ -8,6 +8,10 @@ export const CREATE_REKLAMA = gql`
   }
 `;
 
+// images {
+// name,
+// image
+// },
 export const REKLAMAS = gql`
   query($filter: ReklamaFilter, $order: SortOrder, $page: Int!, $perPage: Int!) {
     reklamas(filter: $filter, order: $order, page: $page, perPage: $perPage) {
@@ -20,17 +24,20 @@ export const REKLAMAS = gql`
         id,
         title,
         content,
-        insertedAt,
+        insertedAt
+      }
+    }
+  }
+`;
+
+export const REKLAMAS_IMAGES = gql`
+  query($filter: ReklamaFilter, $order: SortOrder, $page: Int!, $perPage: Int!) {
+    reklamas(filter: $filter, order: $order, page: $page, perPage: $perPage) {
+      reklamas {
+        id,
         images {
           name,
           image
-        },
-        user {
-          avatar
-        },
-        topic {
-          image,
-          imageName
         }
       }
     }
