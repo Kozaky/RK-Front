@@ -130,14 +130,6 @@ const CustomAppBar = () => {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}>
-      <MenuItem>
-        <IconButton aria-label="Show new mails" color="inherit">
-          <Badge badgeContent={0} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="Account of current user"
@@ -155,11 +147,6 @@ const CustomAppBar = () => {
 
   const sectionDesktop = (
     <div className={classes.sectionDesktop}>
-      <IconButton aria-label="Show new mails" color="inherit">
-        <Badge badgeContent={0} color="secondary">
-          <MailIcon />
-        </Badge>
-      </IconButton>
       <IconButton
         edge="end"
         aria-label="Account of current user"
