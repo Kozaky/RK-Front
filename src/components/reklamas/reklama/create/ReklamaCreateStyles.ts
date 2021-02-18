@@ -58,7 +58,10 @@ export default makeStyles((theme: Theme) =>
       }
     },
     carousel: {
-      marginTop: theme.spacing(3)
+      marginTop: theme.spacing(3),
+      '& img': {
+        objectFit: 'cover'
+      }
     },
     multiline: {
       width: '100%',

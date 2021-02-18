@@ -189,7 +189,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         header: reklama.title,
         subheader: new Date(reklama.insertedAt).toLocaleString(),
         image: null,
-        imageName: null,
+        imageTitle: null,
         shortDescription: reklama.content.substring(0, 50),
         numLikes: 100
       }
@@ -212,7 +212,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   const loadTopicImage = () => {
 
-    let updatedReklamas = [...reklamaPage.reklamas!].map((reklama: ReklamaProps & { id: number }) => (
+    let updatedReklamas = reklamaPage.reklamas!.map((reklama: ReklamaProps & { id: number }) => (
       {
         ...reklama,
         image: topicQueryData.topic.image,
@@ -229,7 +229,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const loadImages = () => {
     loadImageDemanded.current = false;
 
-    let updatedReklamas = [...reklamaPage.reklamas!].map((reklama: ReklamaProps & { id: number }) => {
+    let updatedReklamas = reklamaPage.reklamas!.map((reklama: ReklamaProps & { id: number }) => {
       let reklamaImage = reklamaImageQueryData.reklamas.reklamas.find((reklamas: any) => reklamas.id == reklama.id);
 
       let updatedReklama = { ...reklama };
@@ -301,7 +301,8 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
                 <Reklama {...reklama} />
               </div>
             </Grid>
-          ))
+          )
+          })
           : null
         }
         {loading
