@@ -63,6 +63,22 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('');
 
+  const { loading, error, data } = useQuery(REKLAMAS, {
+    variables: {
+      page: reklamaPage.currentPage + 1,
+      perPage: reklamaPage.rowsPerPage,
+      filter: {
+        topicId: Number.parseInt(topicId!),
+        ...reklamaPage.filters
+      },
+      order: {
+        order_desc: "inserted_at"
+      }
+    },
+    skip: !loadDemanded.current && !executeFilter.current,
+    fetchPolicy: 'no-cache'
+  });
+
   const { error: topicQueryError, data: topicQueryData } = useQuery(TOPIC_IMAGE, {
     variables: {
       id: Number.parseInt(topicId!)
@@ -82,22 +98,6 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
       }
     },
     skip: !loadImageDemanded.current,
-    fetchPolicy: 'no-cache'
-  });
-
-  const { loading, error, data } = useQuery(REKLAMAS, {
-    variables: {
-      page: reklamaPage.currentPage + 1,
-      perPage: reklamaPage.rowsPerPage,
-      filter: {
-        topicId: Number.parseInt(topicId!),
-        ...reklamaPage.filters
-      },
-      order: {
-        order_desc: "inserted_at"
-      }
-    },
-    skip: !loadDemanded.current && !executeFilter.current,
     fetchPolicy: 'no-cache'
   });
 
@@ -161,10 +161,12 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   useEffect(() => {
     const handleScroll = (e: Event) => {
-      const element = e.target as HTMLDocument;
-      const bottomReached = element.scrollingElement!.scrollHeight - element.scrollingElement!.scrollTop === element.scrollingElement!.clientHeight;
-      if (bottomReached) {
-        loadNextPage();
+      if (!hidden) {
+        const element = e.target as HTMLDocument;
+        const bottomReached = element.scrollingElement!.scrollHeight - element.scrollingElement!.scrollTop === element.scrollingElement!.clientHeight;
+        if (bottomReached) {
+          loadNextPage();
+        }
       }
     }
 
@@ -212,13 +214,18 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   const loadTopicImage = () => {
 
-    let updatedReklamas = reklamaPage.reklamas!.map((reklama: ReklamaProps & { id: number }) => (
-      {
-        ...reklama,
-        image: topicQueryData.topic.image,
-        imageTitle: topicQueryData.topic.imageName,
-      }
-    ));
+    let updatedReklamas = reklamaPage.reklamas!
+      .map((reklama: ReklamaProps & { id: number }) => {
+        if (!reklama.image) {
+          return {
+            ...reklama,
+            image: topicQueryData.topic.image,
+            imageTitle: topicQueryData.topic.imageName,
+          }
+        } else {
+          return reklama
+        }
+      });
 
     setReklamaPage({
       ...reklamaPage,
@@ -301,8 +308,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
                 <Reklama {...reklama} />
               </div>
             </Grid>
-          )
-          })
+          ))
           : null
         }
         {loading
