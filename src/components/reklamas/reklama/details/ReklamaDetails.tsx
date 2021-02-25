@@ -9,7 +9,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import ShareIcon from '@material-ui/icons/Share';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import { useHistory } from "react-router-dom";
 import Chat from '@material-ui/icons/Chat';
 import { useQuery } from '@apollo/react-hooks';
 import { REKLAMA } from '../../../../graphql/Reklama';

@@ -8,6 +8,14 @@ export const CREATE_REKLAMA = gql`
   }
 `;
 
+export const UPDATE_REKLAMA = gql`
+  mutation($updateReklamaDetails: UpdateReklamaDetails!) {
+    updateReklama(updateReklamaDetails: $updateReklamaDetails) {
+      id
+    }
+  }
+`;
+
 // images {
 // name,
 // image
@@ -24,7 +32,10 @@ export const REKLAMAS = gql`
         id,
         title,
         content,
-        insertedAt
+        insertedAt,
+        user {
+          email
+        }
       }
     }
   }
@@ -60,6 +71,14 @@ export const REKLAMA = gql`
         image,
         name
       }
+    }
+  }
+`;
+
+export const DELETE_REKLAMA = gql`
+  mutation($id: Int!) {
+    deleteReklama(id: $id) {
+      id
     }
   }
 `;
