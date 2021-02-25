@@ -5,8 +5,8 @@ import { Grid, Box, CircularProgress } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
-import { Link, useParams, useHistory } from "react-router-dom";
-import { useQuery } from 'react-apollo';
+import { Link, useParams } from "react-router-dom";
+import { useQuery, useLazyQuery } from 'react-apollo';
 import { REKLAMAS, REKLAMAS_IMAGES } from '../../graphql/Reklama';
 import { TOPIC_IMAGE } from '../../graphql/Topic';
 import { handleGeneralErrors } from '../../utils/ErrorHandler';
@@ -15,23 +15,16 @@ import { useAuth } from '../../providers/authProvider/AuthProvider';
 import FilterDrawer from '../ui/filterDrawer/FilterDrawer';
 import { Column } from '../ui/dataTable/DataTable';
 
-const getReklamaPage = () => {
-  let reklamaPage = {
-    currentPage: 0,
-    totalPages: -1,
-    rowsPerPage: 12,
-    reklamas: null,
-    filters: null
-  };
 
-  return reklamaPage;
+const isMaxPage = (reklamaPage: ReklamaPage) => {
+  return reklamaPage.totalPages !== null && reklamaPage.totalPages <= reklamaPage.currentPage
 }
 
 type ReklamaPage = {
   currentPage: number,
-  totalPages: number,
+  totalPages: number | null,
   rowsPerPage: number,
-  reklamas: (ReklamaProps & { id: number })[] | null,
+  reklamas: (ReklamaProps)[] | null,
   filters: { [index: string]: any } | undefined | null
 }
 
@@ -53,11 +46,17 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const { updateCurrentUser } = useAuth()!;
   const [scrollHeight, setScrollHeight] = useState(0);
   const { topicId } = useParams<ReklamaParamTypes>();
+  const { currentUser } = useAuth()!;
 
-  const [reklamaPage, setReklamaPage] = useState<ReklamaPage>(getReklamaPage());
+  const [reklamaPage, setReklamaPage] = useState<ReklamaPage>({
+    currentPage: 0,
+    totalPages: null,
+    rowsPerPage: 12,
+    reklamas: null,
+    filters: null
+  });
   const loadDemanded = useRef(true);
   const executeFilter = useRef(false);
-  const loadImageDemanded = useRef(true);
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -75,31 +74,36 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         order_desc: "inserted_at"
       }
     },
-    skip: !loadDemanded.current && !executeFilter.current,
+    skip: (!loadDemanded.current && !executeFilter.current) || isMaxPage(reklamaPage),
     fetchPolicy: 'no-cache'
   });
 
-  const { error: topicQueryError, data: topicQueryData } = useQuery(TOPIC_IMAGE, {
-    variables: {
-      id: Number.parseInt(topicId!)
-    }
-  });
-
-  const { error: reklamaImageQueryError, data: reklamaImageQueryData } = useQuery(REKLAMAS_IMAGES, {
-    variables: {
-      page: reklamaPage.currentPage + 1,
-      perPage: reklamaPage.rowsPerPage,
-      filter: {
-        topicId: Number.parseInt(topicId!),
-        ...reklamaPage.filters
-      },
-      order: {
-        order_desc: "inserted_at"
+  const [getTopicImage, { called: getTopicImageCalled, data: topicImageData, error: getTopicImageError }] = useLazyQuery(
+    TOPIC_IMAGE,
+    {
+      variables: {
+        id: Number.parseInt(topicId!)
       }
-    },
-    skip: !loadImageDemanded.current,
-    fetchPolicy: 'no-cache'
-  });
+    }
+  );
+
+  const [getReklamaImages, { data: reklamaImagesData, error: getReklamaImagesError }] = useLazyQuery(
+    REKLAMAS_IMAGES,
+    {
+      variables: {
+        page: reklamaPage.currentPage + 1,
+        perPage: reklamaPage.rowsPerPage,
+        filter: {
+          topicId: Number.parseInt(topicId!),
+          ...reklamaPage.filters
+        },
+        order: {
+          order_desc: "inserted_at"
+        }
+      },
+      fetchPolicy: 'no-cache'
+    }
+  );
 
   useEffect(() => {
 
@@ -120,41 +124,46 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   useEffect(() => {
 
-    if (topicQueryError) {
+    if (getTopicImageError) {
       setShowAlert(true);
-      setAlertText(handleGeneralErrors(topicQueryError, updateCurrentUser));
+      setAlertText(handleGeneralErrors(getTopicImageError, updateCurrentUser));
     }
 
-  }, [topicQueryError]);
+  }, [getTopicImageError]);
 
   useEffect(() => {
 
-    if (reklamaImageQueryError) {
+    if (getReklamaImagesError) {
       setShowAlert(true);
-      setAlertText(handleGeneralErrors(reklamaImageQueryError, updateCurrentUser));
+      setAlertText(handleGeneralErrors(getReklamaImagesError, updateCurrentUser));
     }
 
-  }, [reklamaImageQueryError]);
+  }, [getReklamaImagesError]);
 
   useEffect(() => {
 
     if (reklamaPage.reklamas && reklamaPage.reklamas.length === 0) {
       setShowAlert(true);
       setAlertText("No Reklamas Found");
-    } else if (reklamaPage.reklamas && reklamaImageQueryData) {
-      loadImages();
-    } else if (reklamaPage.reklamas && topicQueryData && !isImageLoaded()) {
+    } else if (reklamaPage.reklamas && topicImageData && !isImageLoaded()) {
       loadTopicImage();
     }
 
-  }, [reklamaPage.reklamas, topicQueryData, reklamaImageQueryData]);
+  }, [reklamaPage.reklamas, topicImageData]);
+
+  useEffect(() => {
+
+    if (reklamaPage.reklamas && reklamaImagesData) {
+      loadImages();
+    }
+
+  }, [reklamaImagesData]);
 
   useEffect(() => {
 
     if (reklamaPage.filters || reklamaPage.filters === undefined) {
       executeFilter.current = true;
-      loadImageDemanded.current = true;
-      setReklamaPage(reklamaPage => ({ ...reklamaPage, currentPage: 0, totalPages: -1 }));
+      setReklamaPage(reklamaPage => ({ ...reklamaPage, currentPage: 0, totalPages: null }));
     }
 
   }, [reklamaPage.filters]);
@@ -193,15 +202,15 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         image: null,
         imageTitle: null,
         shortDescription: reklama.content.substring(0, 50),
+        userEmail: reklama.user.email,
         numLikes: 100
       }
     ));
   }
 
   const loadNextPage = () => {
-    if (reklamaPage.currentPage !== reklamaPage.totalPages - 1) {
+    if (!loading && (!reklamaPage.totalPages || (reklamaPage.currentPage !== reklamaPage.totalPages! - 1))) {
       loadDemanded.current = true;
-      loadImageDemanded.current = true;
       setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
     }
   }
@@ -215,12 +224,12 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   const loadTopicImage = () => {
 
     let updatedReklamas = reklamaPage.reklamas!
-      .map((reklama: ReklamaProps & { id: number }) => {
+      .map((reklama: ReklamaProps) => {
         if (!reklama.image) {
           return {
             ...reklama,
-            image: topicQueryData.topic.image,
-            imageTitle: topicQueryData.topic.imageName,
+            image: topicImageData.topic.image,
+            imageTitle: topicImageData.topic.imageName,
           }
         } else {
           return reklama
@@ -234,10 +243,8 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   };
 
   const loadImages = () => {
-    loadImageDemanded.current = false;
-
-    let updatedReklamas = reklamaPage.reklamas!.map((reklama: ReklamaProps & { id: number }) => {
-      let reklamaImage = reklamaImageQueryData.reklamas.reklamas.find((reklamas: any) => reklamas.id == reklama.id);
+    let updatedReklamas = reklamaPage.reklamas!.map((reklama: ReklamaProps) => {
+      let reklamaImage = reklamaImagesData.reklamas.reklamas.find((reklamas: any) => reklamas.id == reklama.id);
 
       let updatedReklama = { ...reklama };
       if (reklamaImage && reklamaImage.images.length !== 0) {
@@ -255,14 +262,19 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
   };
 
   const isImageLoaded = () =>
-    [...reklamaPage.reklamas!].every((reklama: ReklamaProps & { id: number }) => reklama.image !== null);
+    [...reklamaPage.reklamas!].every((reklama: ReklamaProps) => reklama.image !== null);
+
+
+  const getDeletePermission = (reklama: ReklamaProps) => currentUser?.email === reklama.userEmail;
+  const getEditPermission = (reklama: ReklamaProps) => currentUser?.email === reklama.userEmail;
 
   if (data && !loading) {
 
     if (loadDemanded.current) {
       loadDemanded.current = false;
+      getReklamaImages();
 
-      let updatedReklamas: (ReklamaProps & { id: number })[] = [];
+      let updatedReklamas: (ReklamaProps)[] = [];
       if (reklamaPage.reklamas) {
         updatedReklamas = [...reklamaPage.reklamas];
       }
@@ -277,12 +289,17 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
     } else if (executeFilter.current) {
       executeFilter.current = false;
+      getReklamaImages();
 
       setReklamaPage({
         ...reklamaPage,
         reklamas: parseData(data),
         totalPages: data.reklamas.metadata.totalPages
       });
+    }
+
+    if (!getTopicImageCalled) {
+      getTopicImage();
     }
   }
 
@@ -292,8 +309,19 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
     setReklamaId(reklamaId);
   }
 
+  const deleteReklama = (reklamaId: number) => {
+    let updatedReklamas = [...reklamaPage.reklamas!];
+    updatedReklamas = updatedReklamas.filter((reklama: ReklamaProps) => reklama.id !== reklamaId);
+
+    setReklamaPage({
+      ...reklamaPage,
+      reklamas: updatedReklamas
+    });
+  }
+
   const filterInputs: Column['filter'][] = [
-    { filter: 'title', filterLabel: 'Title', filterType: 'string' }
+    { filter: 'title', filterLabel: 'Title', filterType: 'string' },
+    { filter: 'currentUser', filterLabel: 'My Reklamas', filterType: 'boolean' }
   ];
 
   return (
@@ -304,9 +332,14 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         {reklamaPage.reklamas && reklamaPage.reklamas.length !== 0
           ? reklamaPage.reklamas.map(reklama => (
             <Grid item className={classes.reklamasRoot} xs key={reklama.id}>
-              <div onClick={(e) => showDetails(reklama.id)} className={classes.linkDiv}>
-                <Reklama {...reklama} />
-              </div>
+              <Reklama {...reklama}
+                edit={getEditPermission(reklama)}
+                delete={getDeletePermission(reklama)}
+                deleteReklama={deleteReklama}
+                showDetails={showDetails}
+                setShowAlert={setShowAlert}
+                setAlertText={setAlertText}
+              />
             </Grid>
           ))
           : null

@@ -31,6 +31,9 @@ const AuthenticatedApp = () => {
           <Route exact path="/reklamas/create">
             <ReklamaCreate />
           </Route>
+          <Route exact path="/reklamas/edit/:reklamaId">
+            <ReklamaCreate isEdit={true} />
+          </Route>
           <AuthorizedRoute exact path="/adminPanel" authorization="ADMIN">
             <AdminPanel />
           </AuthorizedRoute>

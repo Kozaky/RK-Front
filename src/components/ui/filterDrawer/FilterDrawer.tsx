@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { DrawerProps, Drawer, Typography, Grid, Button, TextField } from "@material-ui/core";
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Column } from "../dataTable/DataTable";
 import useStyles from './FilterDrawerStyles';
 
@@ -21,6 +23,12 @@ const FilterDrawer = ({ setFilters, filters, ...rest }: FilterDrawerProps) => {
   const handleInputChange = (e: React.ChangeEvent<any>, filter: string) => {
     const state = { ...filterState };
     state[filter] = e.currentTarget.value;
+    setFilterState(state);
+  }
+
+  const handleCheckChange = (e: React.ChangeEvent<any>, filter: string) => {
+    const state = { ...filterState };
+    state[filter] = e.currentTarget.checked;
     setFilterState(state);
   }
 
@@ -66,6 +74,23 @@ const FilterDrawer = ({ setFilters, filters, ...rest }: FilterDrawerProps) => {
               </Grid>
             );
             break;
+          case 'boolean':
+            filterElement = (
+              <Grid container direction="row" justify="center" key={filter?.filter}>
+                <FormControlLabel
+                  control={
+                    <Checkbox id={"filter-" + filter?.filterLabel}
+                      checked={filterState[filter?.filter] || false}
+                      color="secondary"
+                      onChange={(event) => handleCheckChange(event, filter?.filter)}
+                    />
+                  }
+                  label={filter?.filterLabel}
+                  labelPlacement="end"
+                  value="end"
+                />
+              </Grid>
+            );
           default:
             break;
         }
