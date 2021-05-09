@@ -4,7 +4,6 @@ import { MESSAGES, CREATE_MESSAGE } from '../../../../../graphql/Message';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { Box, Drawer, DrawerProps, Grid, TextField, CardHeader, Card, CardContent, Typography, Avatar, IconButton } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
-import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../../../providers/authProvider/AuthProvider';
 import { handleGeneralErrors } from '../../../../../utils/ErrorHandler';
 

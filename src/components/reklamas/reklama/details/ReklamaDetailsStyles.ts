@@ -15,7 +15,8 @@ export default makeStyles((theme: Theme) =>
       whiteSpace: 'pre-line'
     },
     actions: {
-      padding: theme.spacing(3)
+      padding: theme.spacing(3),
+      flexDirection: 'row-reverse'
     },
     drawer: {
       textAlign: 'center',

@@ -9,8 +9,23 @@ export const TOPIC = gql`
   }
 `;
 
+export const TOPIC_IMAGE = gql`
+  query($id: Int!) {
+    topic(id: $id) {
+      image,
+      imageName
+    }
+  }
+`;
+
 export const TOPICS = gql`
-  query {
+query($filter: TopicFilter, $order: SortOrder, $page: Int!, $perPage: Int!) {
+  topics(filter: $filter, order: $order, page: $page, perPage: $perPage) {
+    metadata {
+      page,
+      totalPages,
+      totalResults
+    },
     topics {
       id,
       title,
@@ -18,6 +33,7 @@ export const TOPICS = gql`
       image
     }
   }
+}
 `;
 
 export const DELETE_TOPIC = gql`

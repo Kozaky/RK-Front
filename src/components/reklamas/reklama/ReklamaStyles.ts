@@ -16,6 +16,11 @@ export default makeStyles((theme: Theme) =>
     },
     favoriteIcon: {
       color: '#f50057'
+    },
+    linkDiv: {
+      cursor: "pointer"
+    },
+    dialogDelete: {
     }
   })
 );

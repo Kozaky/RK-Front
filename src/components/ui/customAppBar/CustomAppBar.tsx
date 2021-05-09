@@ -86,7 +86,7 @@ const CustomAppBar = () => {
       <RouterLink to="/adminPanel" className={classes.linkWithoutDecoration}>
         <Typography color="secondary" noWrap>
           Admin. Panel
-          </Typography>
+        </Typography>
       </RouterLink>
     </MenuItem>
   );
@@ -130,14 +130,6 @@ const CustomAppBar = () => {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}>
-      <MenuItem>
-        <IconButton aria-label="Show new mails" color="inherit">
-          <Badge badgeContent={0} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="Account of current user"
@@ -155,11 +147,6 @@ const CustomAppBar = () => {
 
   const sectionDesktop = (
     <div className={classes.sectionDesktop}>
-      <IconButton aria-label="Show new mails" color="inherit">
-        <Badge badgeContent={0} color="secondary">
-          <MailIcon />
-        </Badge>
-      </IconButton>
       <IconButton
         edge="end"
         aria-label="Account of current user"
@@ -191,9 +178,11 @@ const CustomAppBar = () => {
     <div className={classes.grow}>
       <AppBar position="static" color="secondary">
         <Toolbar>
-          <Typography variant="h3" noWrap>
-            Reklama
-          </Typography>
+          <RouterLink to="/" className={classes.linkWithoutDecoration}>
+            <Typography variant="h3" className={classes.logo} noWrap>
+              Reklama
+            </Typography>
+          </RouterLink>
           <div className={classes.grow} />
           <input id="avatarInput"
             type="file"
