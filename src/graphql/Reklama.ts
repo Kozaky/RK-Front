@@ -16,10 +16,6 @@ export const UPDATE_REKLAMA = gql`
   }
 `;
 
-// images {
-// name,
-// image
-// },
 export const REKLAMAS = gql`
   query($filter: ReklamaFilter, $order: SortOrder, $page: Int!, $perPage: Int!) {
     reklamas(filter: $filter, order: $order, page: $page, perPage: $perPage) {
@@ -35,6 +31,9 @@ export const REKLAMAS = gql`
         insertedAt,
         user {
           email
+        },
+        location {
+          name
         }
       }
     }
@@ -70,6 +69,10 @@ export const REKLAMA = gql`
         id,
         image,
         name
+      },
+      location {
+        id,
+        name
       }
     }
   }
@@ -79,6 +82,15 @@ export const DELETE_REKLAMA = gql`
   mutation($id: Int!) {
     deleteReklama(id: $id) {
       id
+    }
+  }
+`;
+
+export const LOCATIONS = gql`
+  query {
+    locations {
+      id,
+      name
     }
   }
 `;

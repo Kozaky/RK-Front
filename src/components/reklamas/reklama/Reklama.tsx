@@ -17,7 +17,7 @@ import { useMutation } from '@apollo/react-hooks';
 import { handleGeneralErrors } from '../../../utils/ErrorHandler';
 import Button from '@material-ui/core/Button';
 import { useAuth } from '../../../providers/authProvider/AuthProvider';
-import TopAlert, { TopAlertProps } from '../../ui/alerts/topAlert/TopAlert';
+import Chip from '@material-ui/core/Chip';
 
 export type ReklamaProps = {
   id: number
@@ -29,6 +29,7 @@ export type ReklamaProps = {
   shortDescription: string,
   numLikes: number,
   userEmail: string,
+  locationName: string,
   edit: boolean,
   delete: boolean,
   showDetails: (reklamaId: number) => void,
@@ -91,10 +92,7 @@ const Reklama = (props: ReklamaProps) => {
               <DeleteIcon className={classes.favoriteIcon} />
             </IconButton> : null
           }
-          <IconButton aria-label="likes">
-            <FavoriteIcon className={classes.favoriteIcon} />
-          </IconButton>
-          {props.numLikes}
+          <Chip label={props.locationName} />
         </CardActions>
       </Card>
     </>

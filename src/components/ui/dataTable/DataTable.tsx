@@ -25,7 +25,8 @@ export type Column = {
   filter?: {
     filter: string,
     filterLabel: string,
-    filterType: "string" | "number" | "datetime" | "boolean"
+    filterType: "string" | "number" | "date" | "boolean" | "select",
+    selectValues?: Array<{ value: number, label: string }>
   },
   image?: boolean,
   order?: string,
