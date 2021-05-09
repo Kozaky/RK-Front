@@ -15,7 +15,7 @@ import { REKLAMA } from '../../../../graphql/Reklama';
 import TopAlert from '../../../ui/alerts/topAlert/TopAlert';
 import { handleGeneralErrors } from '../../../../utils/ErrorHandler';
 import { useAuth } from '../../../../providers/authProvider/AuthProvider';
-import { Box } from '@material-ui/core';
+import { Box, Chip } from '@material-ui/core';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from 'react-responsive-carousel';
 import MessagesDrawer from './messageDrawer/MessageDrawer';
@@ -112,16 +112,10 @@ const ReklamaDetails = ({ reklamaId, setShowReklamaDetails }: ReklamaDetailsProp
             </Typography>
           </CardContent>
           <CardActions disableSpacing className={classes.actions}>
-            <IconButton aria-label="likes">
-              <FavoriteIcon />
-            </IconButton>
-                8
-                <IconButton aria-label="share">
-              <ShareIcon />
-            </IconButton>
-            <IconButton aria-label="share" onClick={toggleDrawer}>
+            <IconButton aria-label="messages" onClick={toggleDrawer}>
               <Chat />
             </IconButton>
+            <Chip label={data.reklama.location.name} />
           </CardActions>
           <MessagesDrawer
             anchor="right"

@@ -5,22 +5,25 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import AttachmentIcon from '@material-ui/icons/Attachment';
 import Divider from '@material-ui/core/Divider';
-import { TextField, Button, Grid, CardHeader, Box } from '@material-ui/core';
+import { TextField, Button, Grid, CardHeader, Box, Select } from '@material-ui/core';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "../../../../utils/carouselOverrides.css";
 import { Carousel } from 'react-responsive-carousel';
 import CheckIcon from '@material-ui/icons/Check';
 import TopAlert from '../../../ui/alerts/topAlert/TopAlert';
 import { useMutation, useQuery } from '@apollo/react-hooks';
-import { CREATE_REKLAMA, REKLAMA, UPDATE_REKLAMA } from '../../../../graphql/Reklama';
+import { CREATE_REKLAMA, LOCATIONS, REKLAMA, UPDATE_REKLAMA } from '../../../../graphql/Reklama';
 import { handleGeneralErrors } from '../../../../utils/ErrorHandler';
 import { useAuth } from '../../../../providers/authProvider/AuthProvider';
 import { useHistory, useParams } from 'react-router-dom';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
 
 
 type OldReklama = {
   title?: string,
-  content?: string
+  content?: string,
+  locationId?: number
 }
 
 type ReklamaParamTypes = {
@@ -46,6 +49,8 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
   const imageInput = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[] | null>(null);
   const [imgs, setImgs] = useState<JSX.Element[] | null>(null);
+  const [locationId, setLocationId] = useState<number | undefined>(undefined);
+  const [locationError, setLocationError] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [alertText, setAlertText] = useState('');
 
@@ -63,6 +68,8 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
     skip: !isEdit || !loadEditDataDemanded
   });
 
+  const { loading: loadingLocations, error: getReklamaLocationsError, data: locationsData } = useQuery(LOCATIONS);
+
   useEffect(() => {
 
     if (error) {
@@ -72,6 +79,16 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
     }
 
   }, [error]);
+
+  useEffect(() => {
+
+    if (getReklamaLocationsError) {
+      setShowAlert(true);
+
+      setAlertText(handleErrors(getReklamaLocationsError, updateCurrentUser));
+    }
+
+  }, [getReklamaLocationsError]);
 
   const handleErrors = (error: any, updateCurrentUser: any) => {
     let errorMsg = '';
@@ -125,6 +142,16 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
       msg = 'Required';
     } else if (content.length > 3_000) {
       msg = 'Content is too long';
+    }
+
+    return msg;
+  }
+
+  const checkLocation = async (locationId: number | undefined): Promise<string> => {
+    let msg = '';
+
+    if (locationId === undefined) {
+      msg = 'Required';
     }
 
     return msg;
@@ -191,6 +218,10 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
     });
   }
 
+  const handleSelectChange = (e: React.ChangeEvent<any>) => {
+    setLocationId(Number.parseInt(e.currentTarget.value));
+  }
+
   const handleCreate = () => {
     checkForm().then(result => {
       if (result) {
@@ -221,7 +252,8 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
             id: Number.parseInt(reklamaId!),
             title: title,
             content: content,
-            images: images.length === 0 ? undefined : images
+            images: images.length === 0 ? undefined : images,
+            locationId: locationId
           }
         }
       })
@@ -240,7 +272,7 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
   }
 
   const thereIsChanges = () => {
-    return title !== oldReklama.current?.title || content !== oldReklama.current?.content || images?.length !== 0;
+    return title !== oldReklama.current?.title || content !== oldReklama.current?.content || images?.length !== 0 || locationId !== oldReklama.current?.locationId;
   }
 
   const executeCreate = () => {
@@ -255,7 +287,8 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
         reklamaDetails: {
           title: title,
           content: content,
-          images: images
+          images: images,
+          locationId: locationId
         }
       }
     })
@@ -274,6 +307,7 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
     const results = await Promise.all([
       checkTitle(title).then(result => { setTitleError(result); return result; }),
       checkContent(content).then(result => { setContentError(result); return result }),
+      checkLocation(locationId).then(result => { setLocationError(result); return result }),
     ]);
 
     const result = results.every((value: string) => value.length === 0);
@@ -281,11 +315,12 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
     return result;
   }
 
-  if (loading && isEdit) return null;
+  if ((loading && isEdit) || (loadingLocations || !locationsData)) return null;
 
   if (data && isEdit && loadEditDataDemanded.current) {
     setTitle(data.reklama.title);
     setContent(data.reklama.content);
+    setLocationId(data.reklama.location.id);
 
     let img = data.reklama.images.map((img: any) => 'data:image/png;base64,' + img.image);
     setImgs(createDivImgs(img));
@@ -355,6 +390,25 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
                 helperText={contentError}
                 onChange={handleContentChange}
               />
+              <FormControl className={classes.locationSelect}>
+                <Select
+                  native
+                  value={locationId}
+                  onChange={(event) => handleSelectChange(event)}
+                  inputProps={{
+                    name: 'Location',
+                    id: 'location',
+                  }}
+                >
+                  <option aria-label="None" />
+                  {
+                    locationsData.locations.map((selectValue: any) =>
+                      <option key={selectValue.id} value={selectValue.id}>{selectValue.name}</option>
+                    )
+                  }
+                </Select>
+                <FormHelperText>{locationError}</FormHelperText>
+              </FormControl>
               <Box component="div" className={classes.divImageButton}>
                 <Button
                   variant="contained"

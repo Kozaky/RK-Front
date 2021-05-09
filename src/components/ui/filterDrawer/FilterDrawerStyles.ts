@@ -18,6 +18,9 @@ export default makeStyles((theme: Theme) =>
     filterButton: {
       minWidth: 150,
       margin: 8
+    },
+    textAlignLeft: {
+      textAlign: 'left'
     }
   })
 );

@@ -7,7 +7,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery } from 'react-apollo';
-import { REKLAMAS, REKLAMAS_IMAGES } from '../../graphql/Reklama';
+import { REKLAMAS, REKLAMAS_IMAGES, LOCATIONS } from '../../graphql/Reklama';
 import { TOPIC_IMAGE } from '../../graphql/Topic';
 import { handleGeneralErrors } from '../../utils/ErrorHandler';
 import TopAlert from '../ui/alerts/topAlert/TopAlert';
@@ -67,7 +67,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
       page: reklamaPage.currentPage + 1,
       perPage: reklamaPage.rowsPerPage,
       filter: {
-        topicId: Number.parseInt(topicId!),
+        topicId: Number.parseInt(topicId),
         ...reklamaPage.filters
       },
       order: {
@@ -82,7 +82,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
     TOPIC_IMAGE,
     {
       variables: {
-        id: Number.parseInt(topicId!)
+        id: Number.parseInt(topicId)
       }
     }
   );
@@ -94,7 +94,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         page: reklamaPage.currentPage + 1,
         perPage: reklamaPage.rowsPerPage,
         filter: {
-          topicId: Number.parseInt(topicId!),
+          topicId: Number.parseInt(topicId),
           ...reklamaPage.filters
         },
         order: {
@@ -104,6 +104,8 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
       fetchPolicy: 'no-cache'
     }
   );
+
+  const { loading: loadingLocations, error: getReklamaLocationsError, data: locationsData } = useQuery(LOCATIONS);
 
   useEffect(() => {
 
@@ -142,6 +144,15 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
   useEffect(() => {
 
+    if (getReklamaLocationsError) {
+      setShowAlert(true);
+      setAlertText(handleGeneralErrors(getReklamaLocationsError, updateCurrentUser));
+    }
+
+  }, [getReklamaLocationsError]);
+
+  useEffect(() => {
+
     if (reklamaPage.reklamas && reklamaPage.reklamas.length === 0) {
       setShowAlert(true);
       setAlertText("No Reklamas Found");
@@ -163,7 +174,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
 
     if (reklamaPage.filters || reklamaPage.filters === undefined) {
       executeFilter.current = true;
-      setReklamaPage(reklamaPage => ({ ...reklamaPage, currentPage: 0, totalPages: null }));
+      setReklamaPage(page => ({ ...page, currentPage: 0, totalPages: null }));
     }
 
   }, [reklamaPage.filters]);
@@ -203,13 +214,13 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
         imageTitle: null,
         shortDescription: reklama.content.substring(0, 50),
         userEmail: reklama.user.email,
-        numLikes: 100
+        locationName: reklama.location.name
       }
     ));
   }
 
   const loadNextPage = () => {
-    if (!loading && (!reklamaPage.totalPages || (reklamaPage.currentPage !== reklamaPage.totalPages! - 1))) {
+    if (!loading && (!reklamaPage.totalPages || (reklamaPage.currentPage !== reklamaPage.totalPages - 1))) {
       loadDemanded.current = true;
       setReklamaPage({ ...reklamaPage, currentPage: reklamaPage.currentPage + 1 });
     }
@@ -319,10 +330,29 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
     });
   }
 
-  const filterInputs: Column['filter'][] = [
-    { filter: 'title', filterLabel: 'Title', filterType: 'string' },
-    { filter: 'currentUser', filterLabel: 'My Reklamas', filterType: 'boolean' }
-  ];
+  const buildFilterInputs = () => {
+    let filters: Column['filter'][] = [
+      { filter: 'title', filterLabel: 'Title', filterType: 'string' },
+      { filter: 'insertedAfter', filterLabel: "From", filterType: 'date' },
+      { filter: 'insertedBefore', filterLabel: "To", filterType: 'date' }
+    ];
+
+    if (!loadingLocations && locationsData) {
+      const parsedLocations = locationsData.locations.map((location: any) => (
+        {
+          value: location.id,
+          label: location.name
+        }
+      ));
+
+      filters.push({ filter: 'locationId', filterLabel: 'Location', filterType: 'select', selectValues: parsedLocations });
+      filters.push({ filter: 'currentUser', filterLabel: 'My Reklamas', filterType: 'boolean' });
+    }
+
+    return filters;
+  }
+
+  const filterInputs: Column['filter'][] = buildFilterInputs();
 
   return (
     <Box hidden={hidden}>
@@ -344,7 +374,7 @@ const Reklamas = ({ setReklamaId, setShowReklamaDetails, hidden }: ReklamasProps
           ))
           : null
         }
-        {loading
+        {(loading || loadingLocations)
           ? <Box component="div" className={classes.load}>
             <CircularProgress color="secondary" size="2em" />
           </Box>

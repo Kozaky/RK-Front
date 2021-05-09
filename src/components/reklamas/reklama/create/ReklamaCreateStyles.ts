@@ -72,6 +72,10 @@ export default makeStyles((theme: Theme) =>
     },
     divCreateButton: {
       textAlign: 'right'
+    },
+    locationSelect: {
+      marginBottom: theme.spacing(6),
+      width: '100%'
     }
   })
 );
