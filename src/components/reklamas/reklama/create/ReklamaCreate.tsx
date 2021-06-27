@@ -5,7 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import AttachmentIcon from '@material-ui/icons/Attachment';
 import Divider from '@material-ui/core/Divider';
-import { TextField, Button, Grid, CardHeader, Box, Select } from '@material-ui/core';
+import { TextField, Button, Grid, CardHeader, Box, Select, InputLabel } from '@material-ui/core';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "../../../../utils/carouselOverrides.css";
 import { Carousel } from 'react-responsive-carousel';
@@ -320,7 +320,7 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
   if (data && isEdit && loadEditDataDemanded.current) {
     setTitle(data.reklama.title);
     setContent(data.reklama.content);
-    setLocationId(data.reklama.location.id);
+    setLocationId(Number.parseInt(data.reklama.location.id));
 
     let img = data.reklama.images.map((img: any) => 'data:image/png;base64,' + img.image);
     setImgs(createDivImgs(img));
@@ -348,19 +348,23 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
             spacing={3}>
             <Grid item xs>
               <Typography variant="h6">
-                Conditions about information
+                Conditions of Use
               </Typography>
               <Typography className={classes.conditions}>
                 <CheckIcon />
-                Conditions about informationConditions about information
+                In order to use the Service, you must be at least 18 years old or older
               </Typography>
               <Typography className={classes.conditions}>
                 <CheckIcon />
-                Conditions about informationConditions about information
+                Posts that are vulgar in nature or use inappropriate swear words are not allowed on the board
               </Typography>
               <Typography className={classes.conditions}>
                 <CheckIcon />
-                Conditions about informationConditions about information
+                All information received by us from your use of Reklama will be used by Reklama in accordance with our Privacy policy
+              </Typography>
+              <Typography className={classes.conditions}>
+                <CheckIcon />
+                The content of the Service, including but not limited to text, graphics, logos, button icons, images, document, as well as the arrangement and compilations of these, all software used in the Service, and the Content, are the sole property of Reklama
               </Typography>
             </Grid>
             <Grid item xs={1} className={classes.gridDivider}>
@@ -391,8 +395,10 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
                 onChange={handleContentChange}
               />
               <FormControl className={classes.locationSelect}>
+                <InputLabel id="location-select-label">Location</InputLabel>
                 <Select
                   native
+                  labelId="location-select-label"
                   value={locationId}
                   onChange={(event) => handleSelectChange(event)}
                   inputProps={{
