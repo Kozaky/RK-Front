@@ -320,7 +320,7 @@ const ReklamaCreate = ({ isEdit }: ReklamaCreateProps) => {
   if (data && isEdit && loadEditDataDemanded.current) {
     setTitle(data.reklama.title);
     setContent(data.reklama.content);
-    setLocationId(data.reklama.location.id);
+    setLocationId(Number.parseInt(data.reklama.location.id));
 
     let img = data.reklama.images.map((img: any) => 'data:image/png;base64,' + img.image);
     setImgs(createDivImgs(img));
