@@ -19,7 +19,8 @@ export default makeStyles((theme: Theme) =>
       color: '#606060',
       '& svg': {
         color: 'green'
-      }
+      },
+      textAlign: 'justify'
     },
     title: {
       marginTop: theme.spacing(3),
